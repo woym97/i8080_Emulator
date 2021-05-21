@@ -7,6 +7,7 @@
 
 #pragma once
 #include <cstdint>
+#include <array>
 
 /**
  * [DESCRIPTION] Class representing IO on an i8080 processor
@@ -19,7 +20,7 @@ class i8080_IO {
     */
     class IO {
     private:
-        uint8_t buffer[256];
+        std::array<uint8_t, 256> buffer;
     public:
         void    set(int index, uint8_t val);
         uint8_t get(int index);
@@ -30,5 +31,4 @@ class i8080_IO {
     IO output;
 
     i8080_IO();
-    ~i8080_IO();
 };
