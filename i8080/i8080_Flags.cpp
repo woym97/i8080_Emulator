@@ -79,6 +79,16 @@ void i8080::i8080_Flags::set_Z()
 }
 
 /**
+ * [DESCRIPTION] Set the sero flag off the passed value
+ * 
+ * [PARAM] src 
+*/
+void i8080::i8080_Flags::set_Z(uint8_t src)
+{
+	Z.set(src == 0x00 ? 1 : 0);
+}
+
+/**
  * [DESCRIPTION] Set the AC flag if there was a carry
  * 
  * [PARAM] src1 

@@ -40,7 +40,7 @@ i8080::i8080_OpCodes::i8080_OpCodes(i8080_Registers* parent_register,
  * 
  * [PARAM] passed_code 
 */
-void i8080::i8080_OpCodes::runOpCode(uint8_t passed_code) 
+void i8080::i8080_OpCodes::runOpCode(unsigned char passed_code)
 {
 
     // Inc the PC tha default step of 1

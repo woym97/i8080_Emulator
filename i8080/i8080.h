@@ -238,9 +238,6 @@ public:
         void func_ADC_Registers(i8080_Registers::Register_8Bit &reg_Source);
         void func_SUB_Registers(i8080_Registers::Register_8Bit &reg_Source);
         void func_SBB_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_AND_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_XOR_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_OR_Registers(i8080_Registers::Register_8Bit &reg_Source);
         void func_CMP_Registers(i8080_Registers::Register_8Bit &reg_Source);
         void func_PUSH_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2);
         void func_INX_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2);
@@ -299,7 +296,7 @@ public:
         void  func_DCR_L();
         void  func_MVI_L_D8();
         void  func_CMA();
-        void  func_SIM();
+        //void  func_SIM();
         void  func_LXI_SP_D16();
         void  func_STA_ADR();
         void  func_INX_SP();
@@ -510,11 +507,7 @@ public:
     public:
         // MAIN CALLER
         void runOpCode(unsigned char passed_code);
-        i8080_OpCodes(i8080_Registers* parent_register, 
-                        i8080_Memory*    parent_memory, 
-                        i8080_Flags*     parent_flags, 
-                        i8080_Clock*     parent_clock, 
-                        i8080_IO*        parent_IO);
+        i8080_OpCodes(i8080_Registers* parent_register, i8080_Memory* parent_memory,  i8080_Flags* parent_flags, i8080_Clock* parent_clock, i8080_IO* parent_IO);
     };
     // OPCODE CLASS END =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
