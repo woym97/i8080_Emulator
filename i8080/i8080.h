@@ -29,5 +29,4 @@ public:
     void             sendInterrupt(int itr_num);
 
     i8080();
-    ~i8080();
 };

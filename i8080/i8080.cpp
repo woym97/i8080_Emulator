@@ -53,4 +53,16 @@ void i8080::sendInterrupt(int itr_num)
         // reset the int enable bit
         flags.INTE.set(true);
     }
+};
+
+/**
+ * [DESCRIPTION] Construct a new i8080::i8080 object by pointing the
+ *               child components to this object (only if they need access)
+ * 
+*/
+i8080::i8080() 
+{
+    flags.setParent(this);
+    execute.setParent(this);
+    memory.setParent(this);
 }
