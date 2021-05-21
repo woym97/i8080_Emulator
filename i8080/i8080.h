@@ -20,11 +20,14 @@
 */
 class i8080 {
 public:
-    i8080_Flags     flags;
-    i8080_Registers registers;
-    i8080_Memory    memory;
-    i8080_Clock     clock;
-    i8080_IO        io;
-    i8080_OpCodes   execute;
-    void            SendInterrupt(int itr_num);
+    i8080_Flags      flags;
+    i8080_Registers  registers;
+    i8080_Memory     memory;
+    i8080_Clock      clock;
+    i8080_IO         io;
+    i8080_OpCodes    execute;
+    void             sendInterrupt(int itr_num);
+
+    i8080();
+    ~i8080();
 };
