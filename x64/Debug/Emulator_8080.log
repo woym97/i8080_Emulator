@@ -1,9 +1,10 @@
 ﻿  i8080.cpp
+C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\i8080\i8080.cpp(70,36): error C2512: 'i8080::i8080_OpCodes': no appropriate default constructor available
   i8080_Clock.cpp
 C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\i8080\i8080_Clock.cpp(31,32): warning C4244: 'return': conversion from 'uint64_t' to 'int', possible loss of data
   i8080_Flags.cpp
   i8080_IO.cpp
   i8080_Memory.cpp
+  i8080_Opcodes.cpp
   i8080_Registers.cpp
   Generating Code...
-  Emulator_8080.vcxproj -> C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\x64\Debug\Emulator_8080.exe

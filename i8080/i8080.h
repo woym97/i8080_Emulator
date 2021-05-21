@@ -1,19 +1,11 @@
 /**
  * [FILE] i8080.h
  * [AUTHOR] Madison Woy 
- * [DESCRIPTION] Contains an object that represents an i8080 processor 
+ * [DESCRIPTION] Contains an object that represents an i8080 processor and its components
  *      RESOURCES:
  *          https://altairclone.com/downloads/manuals/8080%20Programmers%20Manual.pdf
  * [DATE] 2021-05-21
 */
-
-//#pragma once
-//#include "i8080_Component.h"
-//#include "i8080_Clock.h"
-//#include "i8080_Flags.h"
-//#include "i8080_IO.h"
-//#include "i8080_OpCodes.h"
-//#include "i8080_Memory.h"
 
 #pragma once
 #include <cstdint>
@@ -152,24 +144,22 @@ public:
         };
         i8080_Registers* registers;     // give the flags access to registers
     public:
-        Flag Z;     // Zero 
-        Flag S;     // Sign
-        Flag P;     // Parity
-        Flag C;     // Carry
-        Flag AC;    // Auxillary Carry
+        Flag Z;     // Zero - Set to 1 when result is Zero
+        Flag S;     // Sign - Set to 1 when bit 7 of math result is set
+        Flag P;     // Parity - Set to 1 when the result has even parity, 0 when it has odd parity
+        Flag C;     // Carry - Set to 1 when a carry out or borrow was used in the carry bit
+        Flag AC;    // Auxillary Carry - Carry Out Bit, but for Bit 3 of the instruction result
         Flag INTE;  // Interrupt flag
 
-        // CHECK FLAG FUNCTIONS
-        bool check_S();
-        bool check_S(i8080_Registers::Register_8Bit reg);
-        bool check_Z();
-        bool check_Z(i8080_Registers::Register_8Bit reg);
-        bool check_AC(i8080_Registers::Register_8Bit reg1, 
-                    i8080_Registers::Register_8Bit reg2);
-        bool check_P();
-        bool check_P(i8080_Registers::Register_8Bit reg);
-        bool check_C(i8080_Registers::Register_8Bit reg1, 
-                    i8080_Registers::Register_8Bit reg2);
+        // SET/CHECK FLAG FUNCTIONS
+        void set_S();
+        void set_S(i8080_Registers::Register_8Bit reg);
+        void set_Z();
+        void set_Z(i8080_Registers::Register_8Bit reg);
+        void set_AC(uint8_t src1, uint8_t src2);
+        void set_P();
+        void set_P(uint8_t src);
+        void set_C(uint8_t src1, uint8_t src2, bool negate);
         bool check_C(i8080_Registers::Register_16Bit reg1, 
                     i8080_Registers::Register_16Bit reg2);
 
@@ -229,6 +219,10 @@ public:
     */
     class i8080_OpCodes {
     private:
+        i8080_Registers *registers;                     // give the opcodes access to registers
+        i8080_Memory    *memory;                        // give the opcodes access to the memory
+        i8080_Flags     *flags;                         // give the opcodes access to the flags
+
         // GENERAL FUNCTION PROTOTYPES
         void func_LXI_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2);
         void func_INR_Registers(i8080_Registers::Register_8Bit &reg_Source);
@@ -511,6 +505,9 @@ public:
     public:
         // MAIN CALLER
         void runOpCode(unsigned char passed_code);
+        i8080_OpCodes(i8080_Registers* parent_register, 
+                      i8080_Memory*    parent_memory, 
+                      i8080_Flags*     parent_flags);
     };
     // OPCODE CLASS END =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 

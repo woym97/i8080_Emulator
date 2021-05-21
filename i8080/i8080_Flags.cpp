@@ -50,14 +50,14 @@ i8080::i8080_Flags::i8080_Flags(i8080_Registers* parent_registers)
 }
 
 /**
- * [DESCRIPTION] Returns the sign of the accumulator value
+ * [DESCRIPTION] Sets the sign flag based on the Accumulator
  * 
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_S()
+void i8080::i8080_Flags::set_S()
 {	
-	return (0x80 == (registers->A.get() & 0x80));
+	S.set((0x80 == (registers->A.get() & 0x80)));
 }
 
 /**
@@ -67,9 +67,9 @@ bool i8080::i8080_Flags::check_S()
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_S(i8080_Registers::Register_8Bit reg)
+void i8080::i8080_Flags::set_S(i8080_Registers::Register_8Bit reg)
 {
-	return (0x80 == (reg.get() & 0x80));
+	S.set((0x80 == (reg.get() & 0x80)));
 }
 
 /**
@@ -78,9 +78,9 @@ bool i8080::i8080_Flags::check_S(i8080_Registers::Register_8Bit reg)
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_Z()
+void i8080::i8080_Flags::set_Z()
 {
-	return registers->A.get() == 0x00 ? 1 : 0;
+	Z.set(registers->A.get() == 0x00 ? 1 : 0);
 }
 
 /**
@@ -90,9 +90,9 @@ bool i8080::i8080_Flags::check_Z()
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_Z(i8080_Registers::Register_8Bit reg)
+void i8080::i8080_Flags::set_Z(i8080_Registers::Register_8Bit reg)
 {
-	return reg.get() == 0x00 ? 1 : 0;
+	Z.set(reg.get() == 0x00 ? 1 : 0);
 }
 
 /**
@@ -105,8 +105,7 @@ bool i8080::i8080_Flags::check_Z(i8080_Registers::Register_8Bit reg)
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_AC(i8080_Registers::Register_8Bit reg1,
-					i8080_Registers::Register_8Bit reg2)
+void i8080::i8080_Flags::set_AC(uint8_t src1, uint8_t src2)
 {
 	bool boolResult = false;
 	
@@ -124,8 +123,8 @@ bool i8080::i8080_Flags::check_AC(i8080_Registers::Register_8Bit reg1,
 		
 		uint8_Carry = uint8_Carry >> 1;
 		
-		uint8_Source1Temp = ((reg1.get() >> intBitPosition) & 0x01);
-		uint8_Source2Temp = ((reg2.get() >> intBitPosition) & 0x01);
+		uint8_Source1Temp = ((src1 >> intBitPosition) & 0x01);
+		uint8_Source2Temp = ((src2 >> intBitPosition) & 0x01);
 		
 		uint8_ResultTemp = uint8_Source1Temp + uint8_Source2Temp + uint8_Carry;
 		
@@ -141,7 +140,7 @@ bool i8080::i8080_Flags::check_AC(i8080_Registers::Register_8Bit reg1,
 		
 	};
 	
-	return boolResult;
+	AC.set(boolResult);
 }
 
 /**
@@ -150,9 +149,9 @@ bool i8080::i8080_Flags::check_AC(i8080_Registers::Register_8Bit reg1,
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_P()
+void i8080::i8080_Flags::set_P()
 {
-		bool boolResult = false;
+	bool boolResult = false;
 	
 	int intBitPosition = 0;
 	int intBitCount = 0;
@@ -177,7 +176,7 @@ bool i8080::i8080_Flags::check_P()
 		boolResult = true;
 	}
 	
-	return boolResult;
+	P.set(boolResult);
 }
 
 /**
@@ -187,7 +186,7 @@ bool i8080::i8080_Flags::check_P()
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_P(i8080_Registers::Register_8Bit reg)
+void i8080::i8080_Flags::set_P(uint8_t src)
 {
 	bool boolResult = false;
 	
@@ -200,7 +199,7 @@ bool i8080::i8080_Flags::check_P(i8080_Registers::Register_8Bit reg)
 		
 		uint8_RegisterTemp = 0x00;
 		
-		uint8_RegisterTemp = ((reg.get() >> intBitPosition) & 0x01);
+		uint8_RegisterTemp = ((src >> intBitPosition) & 0x01);
 		
 		if (uint8_RegisterTemp == 0x01){
 			intBitCount = intBitCount + 1;
@@ -213,20 +212,18 @@ bool i8080::i8080_Flags::check_P(i8080_Registers::Register_8Bit reg)
 		boolResult = true;
 	}
 	
-	return boolResult;
+	P.set(boolResult);
 }
 
 /**
- * [DESCRIPTION] Check Carry Function to return if there was a carry 
+ * [DESCRIPTION] Carry Function to set the carry flag if there was a carry 
  * 				 from the bit position 7 addition/subtraction/etc.
  * 
- * [PARAM] reg1 
- * [PARAM] reg2 
- * [RETURN] true 
- * [RETURN] false 
+ * [PARAM] src1 
+ * [PARAM] src2 
+ * [PARAM] negate - if true then set to the negation of the result
 */
-bool i8080::i8080_Flags::check_C(i8080_Registers::Register_8Bit reg1,
-					i8080_Registers::Register_8Bit reg2)
+void i8080::i8080_Flags::set_C(uint8_t src1, uint8_t src2, bool negate)
 {
 	bool boolResult = 0;
 	
@@ -244,8 +241,8 @@ bool i8080::i8080_Flags::check_C(i8080_Registers::Register_8Bit reg1,
 		
 		uint8_Carry = uint8_Carry >> 1;
 		
-		uint8_Source1Temp = ((reg1.get() >> intBitPosition) & 0x01);
-		uint8_Source2Temp = ((reg2.get() >> intBitPosition) & 0x01);
+		uint8_Source1Temp = ((src1 >> intBitPosition) & 0x01);
+		uint8_Source2Temp = ((src2 >> intBitPosition) & 0x01);
 		
 		uint8_ResultTemp = uint8_Source1Temp + uint8_Source2Temp + uint8_Carry;
 		
@@ -261,11 +258,16 @@ bool i8080::i8080_Flags::check_C(i8080_Registers::Register_8Bit reg1,
 		
 	};
 	
-	return boolResult;
+	if (negate) {
+		C.set(!boolResult);
+	} else {
+		C.set(boolResult);
+	}
+
 }
 
 /**
- * [DESCRIPTION] Check Carry Function for 16 bit values to return 
+ * [DESCRIPTION] Check Carry Function for 16 bit values to set the carry flag
  * 				 if there was a carry from the bit position 7 
  * 				 addition/subtraction/etc.
  * 
