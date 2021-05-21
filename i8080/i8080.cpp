@@ -67,7 +67,7 @@ i8080::i8080()
     memory      = new i8080_Memory(registers);
     clock       = new i8080_Clock;
     io          = new i8080_IO;
-    execute     = new i8080_OpCodes(registers, memory, flags);
+    execute     = new i8080_OpCodes(registers, memory, flags, clock, io);
 }
 
 /**

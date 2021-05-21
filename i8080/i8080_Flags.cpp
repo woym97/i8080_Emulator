@@ -51,9 +51,6 @@ i8080::i8080_Flags::i8080_Flags(i8080_Registers* parent_registers)
 
 /**
  * [DESCRIPTION] Sets the sign flag based on the Accumulator
- * 
- * [RETURN] true 
- * [RETURN] false 
 */
 void i8080::i8080_Flags::set_S()
 {	
@@ -61,15 +58,13 @@ void i8080::i8080_Flags::set_S()
 }
 
 /**
- * [DESCRIPTION] Checks and returns the sign of a register
+ * [DESCRIPTION] Set sign flag based on the passed value
  * 
- * [PARAM] reg 
- * [RETURN] true 
- * [RETURN] false 
+ * [PARAM] src 
 */
-void i8080::i8080_Flags::set_S(i8080_Registers::Register_8Bit reg)
+void i8080::i8080_Flags::set_S(uint8_t src)
 {
-	S.set((0x80 == (reg.get() & 0x80)));
+	S.set(0x80 == (src & 0x80));
 }
 
 /**
@@ -84,15 +79,14 @@ void i8080::i8080_Flags::set_Z()
 }
 
 /**
- * [DESCRIPTION] Checks and returns if a register is 0
+ * [DESCRIPTION] Set the AC flag if there was a carry
  * 
- * [PARAM] reg 
- * [RETURN] true 
- * [RETURN] false 
+ * [PARAM] src1 
+ * [PARAM] src2 
 */
-void i8080::i8080_Flags::set_Z(i8080_Registers::Register_8Bit reg)
+void i8080::i8080_Flags::set_AC(uint8_t src1, uint8_t src2)
 {
-	Z.set(reg.get() == 0x00 ? 1 : 0);
+	AC.set(check_AC(src1, src2));
 }
 
 /**
@@ -100,12 +94,12 @@ void i8080::i8080_Flags::set_Z(i8080_Registers::Register_8Bit reg)
  * 				 there was a carry from the bit position 3 
  * 				 addition/subtraction/etc
  * 
- * [PARAM] reg1 
- * [PARAM] reg2 
+ * [PARAM] src1
+ * [PARAM] src2 
  * [RETURN] true 
  * [RETURN] false 
 */
-void i8080::i8080_Flags::set_AC(uint8_t src1, uint8_t src2)
+bool i8080::i8080_Flags::check_AC(uint8_t src1, uint8_t src2)
 {
 	bool boolResult = false;
 	
@@ -139,8 +133,8 @@ void i8080::i8080_Flags::set_AC(uint8_t src1, uint8_t src2)
 		 
 		
 	};
-	
-	AC.set(boolResult);
+
+	return boolResult;
 }
 
 /**
@@ -216,14 +210,16 @@ void i8080::i8080_Flags::set_P(uint8_t src)
 }
 
 /**
- * [DESCRIPTION] Carry Function to set the carry flag if there was a carry 
- * 				 from the bit position 7 addition/subtraction/etc.
+ * [DESCRIPTION] Checks if there was a carry from the bit position 
+ * 				 7 addition/subtraction/etc.
  * 
  * [PARAM] src1 
  * [PARAM] src2 
- * [PARAM] negate - if true then set to the negation of the result
+ * [PARAM] negate 
+ * [RETURN] true 
+ * [RETURN] false 
 */
-void i8080::i8080_Flags::set_C(uint8_t src1, uint8_t src2, bool negate)
+bool i8080::i8080_Flags::check_C(uint8_t src1, uint8_t src2)
 {
 	bool boolResult = 0;
 	
@@ -257,6 +253,41 @@ void i8080::i8080_Flags::set_C(uint8_t src1, uint8_t src2, bool negate)
 		 
 		
 	};
+
+	return boolResult;
+}
+
+/**
+ * [DESCRIPTION] Carry Function to set the carry flag if there was a carry 
+ * 				 from the bit position 7 addition/subtraction/etc.
+ * 
+ * [PARAM] src1 
+ * [PARAM] src2 
+ * [PARAM] negate - if true then set to the negation of the result
+*/
+void i8080::i8080_Flags::set_C(uint8_t src1, uint8_t src2, bool negate)
+{
+	bool boolResult = check_C(src1, src2);
+	
+	if (negate) {
+		C.set(!boolResult);
+	} else {
+		C.set(boolResult);
+	}
+
+}
+
+/**
+ * [DESCRIPTION] Carry Function to set the carry flag if there was a carry 
+ * 				 from the bit position 7 addition/subtraction/etc.
+ * 
+ * [PARAM] src1 
+ * [PARAM] src2 
+ * [PARAM] negate - if true then set to the negation of the result
+*/
+void i8080::i8080_Flags::set_C(uint16_t src1, uint16_t src2, bool negate)
+{
+	bool boolResult = check_C(src1, src2);
 	
 	if (negate) {
 		C.set(!boolResult);
@@ -276,7 +307,7 @@ void i8080::i8080_Flags::set_C(uint8_t src1, uint8_t src2, bool negate)
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080::i8080_Flags::check_C(i8080_Registers::Register_16Bit reg1, i8080_Registers::Register_16Bit reg2)
+bool i8080::i8080_Flags::check_C(uint16_t src1, uint16_t src2)
 {
 	bool boolResult = 0;
 
@@ -294,8 +325,8 @@ bool i8080::i8080_Flags::check_C(i8080_Registers::Register_16Bit reg1, i8080_Reg
 
 		uint16_Carry = uint16_Carry >> 1;
 
-		uint16_Source1Temp = ((reg1.get() >> intBitPosition) & 0x01);
-		uint16_Source2Temp = ((reg1.get() >> intBitPosition) & 0x01);
+		uint16_Source1Temp = ((src1 >> intBitPosition) & 0x01);
+		uint16_Source2Temp = ((src2 >> intBitPosition) & 0x01);
 
 		uint16_ResultTemp = uint16_Source1Temp + uint16_Source2Temp + uint16_Carry;
 

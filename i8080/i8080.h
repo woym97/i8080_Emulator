@@ -153,16 +153,18 @@ public:
 
         // SET/CHECK FLAG FUNCTIONS
         void set_S();
-        void set_S(i8080_Registers::Register_8Bit reg);
+        void set_S(uint8_t src);
         void set_Z();
-        void set_Z(i8080_Registers::Register_8Bit reg);
-        void set_AC(uint8_t src1, uint8_t src2);
+        void set_Z(uint8_t src);
         void set_P();
         void set_P(uint8_t src);
+        void set_AC(uint8_t src1, uint8_t src2);
+        bool check_AC(uint8_t src1, uint8_t src2);
+        bool check_C(uint8_t src1, uint8_t src2);
+        bool check_C(uint16_t src1, uint16_t src2);
+        void set_C(uint16_t src1, uint16_t src2, bool negate);
         void set_C(uint8_t src1, uint8_t src2, bool negate);
         void set_S_Z_P();
-        bool check_C(i8080_Registers::Register_16Bit reg1, 
-                    i8080_Registers::Register_16Bit reg2);
 
         i8080_Flags(i8080_Registers* parent_registers);
     };
@@ -174,7 +176,7 @@ public:
      * 
     */
     class i8080_IO {
-    private:
+    public:
         /**
          * [DESCRIPTION] Class representing general IO with a buffer
          * 
@@ -223,6 +225,8 @@ public:
         i8080_Registers *registers;                     // give the opcodes access to registers
         i8080_Memory    *memory;                        // give the opcodes access to the memory
         i8080_Flags     *flags;                         // give the opcodes access to the flags
+        i8080_Clock     *clock;                         // give the opcodes access to the clock
+        i8080_IO        *io;                            // give the opcodes access to the io
 
         // GENERAL FUNCTION PROTOTYPES
         void func_LXI_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2);
@@ -507,8 +511,10 @@ public:
         // MAIN CALLER
         void runOpCode(unsigned char passed_code);
         i8080_OpCodes(i8080_Registers* parent_register, 
-                      i8080_Memory*    parent_memory, 
-                      i8080_Flags*     parent_flags);
+                        i8080_Memory*    parent_memory, 
+                        i8080_Flags*     parent_flags, 
+                        i8080_Clock*     parent_clock, 
+                        i8080_IO*        parent_IO);
     };
     // OPCODE CLASS END =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
