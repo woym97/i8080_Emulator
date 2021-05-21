@@ -160,6 +160,7 @@ public:
         void set_P();
         void set_P(uint8_t src);
         void set_C(uint8_t src1, uint8_t src2, bool negate);
+        void set_S_Z_P();
         bool check_C(i8080_Registers::Register_16Bit reg1, 
                     i8080_Registers::Register_16Bit reg2);
 

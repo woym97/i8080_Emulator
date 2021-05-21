@@ -12,6 +12,14 @@
 
 #include "i8080.h"
 
+/**
+ * [DESCRIPTION] Construct a new i8080::i8080 OpCodes::i8080 OpCodes object and point it to the
+ *               parent members
+ * 
+ * [PARAM] parent_register 
+ * [PARAM] parent_memory 
+ * [PARAM] parent_flags 
+*/
 i8080::i8080_OpCodes::i8080_OpCodes(i8080_Registers* parent_register, i8080_Memory* parent_memory, i8080_Flags* parent_flags)
 {
     registers = parent_register;
@@ -19,8 +27,14 @@ i8080::i8080_OpCodes::i8080_OpCodes(i8080_Registers* parent_register, i8080_Memo
     flags     = parent_flags;
 }
 
-void i8080::i8080_OpCodes::runOpCode(uint8_t passed_code) {
-
+/**
+ * [DESCRIPTION] Main caller of all the opcodes
+ *      - Also performs a preliminary increment of the PC
+ * 
+ * [PARAM] passed_code 
+*/
+void i8080::i8080_OpCodes::runOpCode(uint8_t passed_code) 
+{
 
     // Inc the PC tha default step of 1
     registers->inc_PC(1);
@@ -288,16 +302,24 @@ void i8080::i8080_OpCodes::runOpCode(uint8_t passed_code) {
 
 // BEGIN GENERAL FUNCTIONS =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-// Generic Move Imediate 16 bit Function to pass the LXI OpCodes to
+/**
+ * [DESCRIPTION] Generic Move Imediate 16 bit Function to pass the LXI OpCodes to
+ * 
+ * [PARAM] reg_Source1 
+ * [PARAM] reg_Source2 
+*/
 void i8080::i8080_OpCodes::func_LXI_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2)
 {
 	reg_Source1.set(memory->opCode_Array[2]);
 	reg_Source2.set(memory->opCode_Array[1]);
 };
 
-
-//!!! NEEDS TO BE FILLED OUT
-// Generic Increment 16 bit Function to pass the INX 8bit OpCodes to
+/**
+ * [DESCRIPTION] Generic Increment 16 bit Function to pass the INX 8bit OpCodes to
+ * 
+ * [PARAM] reg_Source1 
+ * [PARAM] reg_Source2 
+*/
 void i8080::i8080_OpCodes::func_INX_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2) 
 {
 	uint8_t uint8_Source1Temp = reg_Source1.get();
@@ -322,7 +344,11 @@ void i8080::i8080_OpCodes::func_INX_Registers(i8080_Registers::Register_8Bit &re
 
 }
 
-// Generic Increment Function to pass the INR OpCodes to
+/**
+ * [DESCRIPTION] Generic Increment Function to pass the INR OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_INR_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_RegisterTemp = reg_Source.get();
@@ -332,14 +358,16 @@ void i8080::i8080_OpCodes::func_INR_Registers(i8080_Registers::Register_8Bit &re
 	
 	// S	Z	AC	P
 	
-	flags->set_S(reg_Source);
-    flags->set_Z(reg_Source);
+	flags->set_S_Z_P();
 	flags->set_AC(uint8_RegisterTemp, 0x01);
-	flags->set_P(uint8_ResultTemp);
 	
 };
 
-// Generic Decrement Function to pass the DCR OpCodes to
+/**
+ * [DESCRIPTION] Generic Decrement Function to pass the DCR OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_DCR_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_RegisterTemp = reg_Source.get();
@@ -349,28 +377,38 @@ void i8080::i8080_OpCodes::func_DCR_Registers(i8080_Registers::Register_8Bit &re
 	reg_Source.set(uint8_ResultTemp);
 	
 	// S	Z	AC	P
-	flags->set_S(reg_Source);
-	flags->set_Z(reg_Source);
+	flags->set_S_Z_P();
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
-	flags->AC.set(false);
-	
-	flags->set_P(uint8_ResultTemp);
-	
+	flags->AC.set(false);	
 };
 
-// Generic Move Function to pass the MOV OpCodes to
+/**
+ * [DESCRIPTION] Generic Move Function to pass the MOV OpCodes to
+ * 
+ * [PARAM] reg_Destination 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_MOV_Registers(i8080_Registers::Register_8Bit &reg_Destination, i8080_Registers::Register_8Bit &reg_Source)
 {
 	reg_Destination.set(reg_Source.get());
 };
 
-// Generic Immediate Move Function to pass the MVI OpCodes to
+/**
+ * [DESCRIPTION] // Generic Immediate Move Function to pass the MVI OpCodes to
+ * 
+ * [PARAM] reg_Destination 
+ * [PARAM] uint8_Source 
+*/
 void i8080::i8080_OpCodes::func_MVI_Registers(i8080_Registers::Register_8Bit &reg_Destination, uint8_t uint8_Source)
 {
 	reg_Destination.set(uint8_Source);
 };
 
-// Generic Add Function to pass the ADD OpCodes to
+/**
+ * [DESCRIPTION] Generic Add Function to pass the ADD OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_ADD_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
@@ -380,15 +418,17 @@ void i8080::i8080_OpCodes::func_ADD_Registers(i8080_Registers::Register_8Bit &re
 	
 	// S	Z	AC	P	CY
 	
-	flags->set_S();
-	flags->set_Z();
+	flags->set_S_Z_P();
 	flags->set_AC(uint8_InitialA, reg_Source.get());
-	flags->set_P();
 	flags->set_C(uint8_InitialA, reg_Source.get(), false);
 	
 };
 
-// Generic Add Plus Carry Function to pass ADC OpCodes to
+/**
+ * [DESCRIPTION] Generic Add Plus Carry Function to pass ADC OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_ADC_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
@@ -402,15 +442,17 @@ void i8080::i8080_OpCodes::func_ADC_Registers(i8080_Registers::Register_8Bit &re
 	registers->A.set(uint8_ResultTemp);
 	
 	// S	Z	AC	P	CY
-	flags->set_S();
-	flags->set_Z();
+    flags->set_S_Z_P();
 	flags->set_AC(uint8_InitialA, reg_Source.get());
-	flags->set_P();
 	flags->set_C(uint8_InitialA, reg_Source.get(), false);
 	
 };
 
-// Generic Sub Function to pass the SUB OpCodes to
+/**
+ * [DESCRIPTION] Generic Sub Function to pass the SUB OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_SUB_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
@@ -420,18 +462,20 @@ void i8080::i8080_OpCodes::func_SUB_Registers(i8080_Registers::Register_8Bit &re
 	registers->A.set(uint8_ResultTemp);
 	
 	// S	Z	AC	P	CY
-	flags->set_S();
-	flags->set_Z();
+	flags->set_S_Z_P();
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
 	flags->set_AC(uint8_InitialA, uint8_RegisterTwosCompliment);
-	flags->set_P();
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
 	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);;
 	
 };
 
-// Generic Sub with Borrow Function to pass the SBB OpCodes to
+/**
+ * [DESCRIPTION] Generic Sub with Borrow Function to pass the SBB OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_SBB_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
@@ -448,20 +492,20 @@ void i8080::i8080_OpCodes::func_SBB_Registers(i8080_Registers::Register_8Bit &re
 	
 	// S	Z	AC	P	CY
 	
-	flags->set_S();
-	flags->set_Z();
+	flags->set_S_Z_P();
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
 	flags->set_AC(uint8_InitialA, uint8_RegisterTwosCompliment);
-
-	flags->set_P();
-	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
 	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);;
 	
 };
 
-// Generic And Function to pass the ANA OpCodes to
+/**
+ * [DESCRIPTION] Generic And Function to pass the ANA OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_ANA_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_ResultTemp = registers->A.get() & reg_Source.get();
@@ -472,13 +516,15 @@ void i8080::i8080_OpCodes::func_ANA_Registers(i8080_Registers::Register_8Bit &re
 	// This differs from the documentation on other sites.
 	// S	Z	P	CY
 	
-	flags->set_S();
-	flags->set_Z();
-	flags->set_P();
+	flags->set_S_Z_P();
 	flags->C.set(false);
 };
 
-// Generic Exclusive OR Function to pass XRA OpCodes to
+/**
+ * [DESCRIPTION] Generic Exclusive OR Function to pass XRA OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_XRA_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
@@ -489,16 +535,18 @@ void i8080::i8080_OpCodes::func_XRA_Registers(i8080_Registers::Register_8Bit &re
 	
 	// S	Z	AC	P	CY
 	
-	flags->set_S();
-	flags->set_Z();
+	flags->set_S_Z_P();
 	flags->AC.set(0);
-	flags->set_P();
 	flags->C.set(0);
 	
 	
 };
 
-// Generic Or Function to pass the ORA OpCodes to
+/**
+ * [DESCRIPTION] Generic Or Function to pass the ORA OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_ORA_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_ResultTemp = registers->A.get() | reg_Source.get();
@@ -508,14 +556,16 @@ void i8080::i8080_OpCodes::func_ORA_Registers(i8080_Registers::Register_8Bit &re
 	// According to the i8080 Programming Manual the ORA instructions do not affect the AC Flag (pg 19)
 	// This differs from the documentation on other sites.
 	// S	Z	P	CY
-	flags->set_S();
-	flags->set_Z();
-	flags->set_P();
+	flags->set_S_Z_P();
 	flags->C.set(0);
 	
 };
 
-// Generic Compare Function to pass the CMP OpCodes to
+/**
+ * [DESCRIPTION] Generic Compare Function to pass the CMP OpCodes to
+ * 
+ * [PARAM] reg_Source 
+*/
 void i8080::i8080_OpCodes::func_CMP_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
@@ -543,17 +593,18 @@ void i8080::i8080_OpCodes::func_CMP_Registers(i8080_Registers::Register_8Bit &re
 	
 };
 
-// Generic Push Function to pass the PUSH OpCodes to
+/**
+ * [DESCRIPTION] Generic Push Function to pass the PUSH OpCodes to
+ * 
+ * [PARAM] reg_Source1 
+ * [PARAM] reg_Source2 
+*/
 void i8080::i8080_OpCodes::func_PUSH_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2)
 {
 	uint16_t uint16_TempSP = registers->SP.get();
 	
-	//uint16_TempSP = uint16_TempSP - 0x01;
-	
 	// Function to push data to memory
 	memory->set(uint16_TempSP - 0x0001, reg_Source1.get());
-	
-	//uint16_TempSP = uint16_TempSP - 0x01;
 	
 	// Function to push data to memory
 	memory->set(uint16_TempSP - 0x0002, reg_Source2.get());
@@ -561,38 +612,31 @@ void i8080::i8080_OpCodes::func_PUSH_Registers(i8080_Registers::Register_8Bit &r
 	registers->SP.set(uint16_TempSP - 0x0002);
 };
 
-// Generic Return function to pass the RET OpCodes to
+/**
+ * [DESCRIPTION] Generic Return function to pass the RET OpCodes to
+ * 
+*/
 void i8080::i8080_OpCodes::func_General_RET()
 {
 	uint16_t uint16_InitialSP = registers->SP.get();
 	uint8_t uint8_ResultTemp1 = 0x00;
 	uint8_t uint8_ResultTemp2 = 0x00;
 	uint16_t uint16_ResultTemp = 0x0000;
-	
-	//printf("InitialSP: %4X\n", uint16_InitialSP);
 
 	uint8_ResultTemp1 = memory->get(uint16_InitialSP); 
-	
-	//uint16_InitialSP = uint16_InitialSP + 0x0001;
-
 	uint8_ResultTemp2 = memory->get(uint16_InitialSP + 0x0001); 
-	
-	//uint16_InitialSP = uint16_InitialSP + 0x0001;
-	
 	uint16_ResultTemp = uint16_ResultTemp | uint8_ResultTemp2;
-	
 	uint16_ResultTemp = uint16_ResultTemp << 0x08;
-	
 	uint16_ResultTemp = uint16_ResultTemp | uint8_ResultTemp1;
 
-	//printf("ReturnPC: %4X\n", uint16_ResultTemp);
-	
 	registers->PC.set(uint16_ResultTemp);
-	
 	registers->SP.set(uint16_InitialSP + 0x0002);
 };
 
-// Generic Call function to pass the CALL OpCodes to
+/**
+ * [DESCRIPTION] Generic Call function to pass the CALL OpCodes to
+ * 
+*/
 void i8080::i8080_OpCodes::func_General_CALL()
 {
 	uint16_t uint16_InitialPC = registers->PC.get();
@@ -601,12 +645,8 @@ void i8080::i8080_OpCodes::func_General_CALL()
     // Break the Program Counter into two bytes so that it can be stored in memory.
     uint8_t uint8_PCAddrLow = 0x00;
     uint8_t uint8_PCAddrHigh = 0x00;
-	//printf("PC: %4X\n", uint16_InitialPC);
-	//printf("SP: %4X\n", uint16_InitialSP);
     uint8_PCAddrLow = uint8_PCAddrLow | uint16_InitialPC;
     uint8_PCAddrHigh = uint8_PCAddrHigh | (uint16_InitialPC >> 8);
-	//printf("PCLow: %4X\n", uint8_PCAddrLow);
-	//printf("PCHigh: %4X\n", uint8_PCAddrHigh);
 
     // Combine the two bytes following the OpCode to form the address for where the Call
     // will take the program.
@@ -624,11 +664,9 @@ void i8080::i8080_OpCodes::func_General_CALL()
 	
 	// The Stack Pointer is updated
 	registers->SP.set(uint16_InitialSP - 0x02);
-	//printf("CALL_NewPC: %4X\n", uint16_AddressTemp);
 	registers->PC.set(uint16_AddressTemp);
 
 };
-
 
 // END GENERAL FUNCTIONS =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

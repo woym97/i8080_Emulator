@@ -314,3 +314,13 @@ bool i8080::i8080_Flags::check_C(i8080_Registers::Register_16Bit reg1, i8080_Reg
 	return boolResult;
 }
 
+/**
+ * [DESCRIPTION] Set the S & Z & P flags
+ * 
+*/
+void i8080::i8080_Flags::set_S_Z_P() 
+{
+	set_P();
+	set_S();
+	set_Z();
+}
