@@ -7,14 +7,17 @@
 
 #pragma once
 #include <cstdint>
+#include <array>
+#include "i8080_Component.h"
 
 /**
  * [DESCRIPTION] Class representing the memory on an i8080
  * 
 */
-class i8080_Memory {
+class i8080_Memory : public i8080_Component{
     uint8_t*    memory;                             // array representing RAM
 public:
+    std::array<uint8_t, 3> opCode_Array;            // array of surrent opcodes
     uint8_t     get(uint16_t index);                // get memory
     void        set(uint16_t index, uint8_t val);   // set memory
     uint16_t    get_Adr();                          // get ADR location from memory                    
