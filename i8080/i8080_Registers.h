@@ -15,29 +15,38 @@
 class i8080_Registers {
 public:
     /**
-     * [DESCRIPTION] General register class
+     * [DESCRIPTION] General 8 bit register class
      * 
     */
-    class Register {
+    class Register_8Bit {
         private:
             uint8_t val;
-            uint16_t large_val;
         public:
-            uint16_t get_Large();
             uint8_t get();
             void set(uint8_t i);
-            void set_Large(uint16_t i);
     };
-    Register A;
-    Register B;
-    Register C;
-    Register D;
-    Register E;
-    Register H;
-    Register L;
-    Register SP;
-    Register PC;
-    Register PSW;
+    
+    /**
+     * [DESCRIPTION] General 16 bit register class
+     * 
+    */
+    class Register_16Bit {
+        private:
+            uint16_t val;
+        public:
+            uint16_t get();
+            void set(uint16_t i);
+    };
+
+    Register_8Bit A;
+    Register_8Bit B;
+    Register_8Bit C;
+    Register_8Bit D;
+    Register_8Bit E;
+    Register_8Bit H;
+    Register_8Bit L;
+    Register_16Bit SP;
+    Register_16Bit PC;
 
     uint16_t    get_BC();
     uint16_t    get_HL();

@@ -8,12 +8,14 @@
 
 #pragma once
 #include <cstdint>
+#include "i8080_Component.h"
+#include "i8080_Registers.h"
 
 /**
  * [DESCRIPTION] Class representing the flags on an i8080 processor 
  * 
 */
-class i8080_Flags {
+class i8080_Flags: public i8080_Component {
 private: 
     /**
      * [DESCRIPTION] General flag class 
@@ -34,16 +36,19 @@ public:
     Flag AC;    // Auxillary Carry
     Flag INTE;  // Interrupt flag
 
-    // FLAG FUNCTIONS
+    // CHECK FLAG FUNCTIONS
     bool check_S();
-    bool check_S(uint8_t uint8_Register);
+    bool check_S(i8080_Registers::Register_8Bit reg);
     bool check_Z();
-    bool check_Z(uint8_t uint8_Register);
-    bool check_AC(uint8_t uint8_Source1, uint8_t uint8_Source2);
+    bool check_Z(i8080_Registers::Register_8Bit reg);
+    bool check_AC(i8080_Registers::Register_8Bit reg1, 
+                  i8080_Registers::Register_8Bit reg2);
     bool check_P();
-    bool check_P(uint8_t uint8_Register);
-    bool check_C(uint8_t uint8_Source1, uint8_t uint8_Source2);
-    bool check_C(uint16_t uint16_Source1, uint16_t uint16_Source2);
+    bool check_P(i8080_Registers::Register_8Bit reg);
+    bool check_C(i8080_Registers::Register_8Bit reg1, 
+                 i8080_Registers::Register_8Bit reg2);
+    bool check_C(i8080_Registers::Register_16Bit reg1, 
+                 i8080_Registers::Register_16Bit reg2);
 
     i8080_Flags();
 };
