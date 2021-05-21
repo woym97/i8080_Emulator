@@ -5,8 +5,7 @@
  * [DATE] 2021-05-21
 */
 
-#include "i8080_Clock.h"
-
+#include "i8080.h"
 
 /**
  * [DESCRIPTION] Since the i8080 runs at 2Mhz we need to periodically calculate 
@@ -15,7 +14,7 @@
  * 
  * [RETURN] int (clock cycles that need to be run according to the timer)
 */
-int i8080_Clock::getCyclesToRun()
+int i8080::i8080_Clock::getCyclesToRun()
 {
 	// on the first call (when the timer is 0) just start the timer
     if (timer == 0) {
@@ -37,7 +36,7 @@ int i8080_Clock::getCyclesToRun()
  * 		- This is called from the individual opcodes 
  * [PARAM] cyc 
 */
-void i8080_Clock::incClockCycles(int cyc)
+void i8080::i8080_Clock::i8080_Clock::incClockCycles(int cyc)
 {
 	cycles += cyc;
 }
@@ -46,7 +45,7 @@ void i8080_Clock::incClockCycles(int cyc)
  * [DESCRIPTION] Construct a new i8080 Clock::i8080 Clock object
  * 
 */
-i8080_Clock::i8080_Clock() {
+i8080::i8080_Clock::i8080_Clock() {
 	timer 	= 0;
 	cycles 	= 0;
 }
@@ -55,7 +54,7 @@ i8080_Clock::i8080_Clock() {
  * [DESCRIPTION] Reset the clock timer to the current tim ein microseconds
  * 
 */
-void i8080_Clock::resetClockTimer()
+void i8080::i8080_Clock::resetClockTimer()
 {
 	timer = std::chrono::duration_cast<std::chrono::microseconds>
 	(std::chrono::high_resolution_clock::now().time_since_epoch()).count();

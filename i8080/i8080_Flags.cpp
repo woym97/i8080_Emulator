@@ -8,15 +8,14 @@
  * 
 */
 
-#pragma once
-#include "i8080_Flags.h"
+#include "i8080.h"
 
 /**
  * [DESCRIPTION] Set the flag to the passed value
  * 
  * [PARAM] new_val 
 */
-void i8080_Flags::Flag::set(bool new_val)
+void i8080::i8080_Flags::Flag::set(bool new_val)
 {
 	val = new_val;
 }
@@ -27,7 +26,7 @@ void i8080_Flags::Flag::set(bool new_val)
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::Flag::get()
+bool i8080::i8080_Flags::Flag::get()
 {
 	return val;
 }
@@ -36,7 +35,7 @@ bool i8080_Flags::Flag::get()
  * [DESCRIPTION] Construct a new i8080 Flags::i8080 Flags object
  * 
 */
-i8080_Flags::i8080_Flags()
+i8080::i8080_Flags::i8080_Flags(i8080_Registers* parent_registers)
 {
 	/* Set the starting value of the flags */
 	Z.set(true);
@@ -45,6 +44,9 @@ i8080_Flags::i8080_Flags()
     C.set(true);
     AC.set(false);
     INTE.set(false);
+
+	/* Point to the parents registers */
+	registers = parent_registers;
 }
 
 /**
@@ -53,9 +55,9 @@ i8080_Flags::i8080_Flags()
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_S()
-{
-	return (0x80 == (p_cpu->registers.A.get() & 0x80));
+bool i8080::i8080_Flags::check_S()
+{	
+	return (0x80 == (registers->A.get() & 0x80));
 }
 
 /**
@@ -65,7 +67,7 @@ bool i8080_Flags::check_S()
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_S(i8080_Registers::Register_8Bit reg)
+bool i8080::i8080_Flags::check_S(i8080_Registers::Register_8Bit reg)
 {
 	return (0x80 == (reg.get() & 0x80));
 }
@@ -76,9 +78,9 @@ bool i8080_Flags::check_S(i8080_Registers::Register_8Bit reg)
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_Z()
+bool i8080::i8080_Flags::check_Z()
 {
-	return p_cpu->registers.A.get() == 0x00 ? 1 : 0;
+	return registers->A.get() == 0x00 ? 1 : 0;
 }
 
 /**
@@ -88,7 +90,7 @@ bool i8080_Flags::check_Z()
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_Z(i8080_Registers::Register_8Bit reg)
+bool i8080::i8080_Flags::check_Z(i8080_Registers::Register_8Bit reg)
 {
 	return reg.get() == 0x00 ? 1 : 0;
 }
@@ -103,7 +105,7 @@ bool i8080_Flags::check_Z(i8080_Registers::Register_8Bit reg)
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_AC(i8080_Registers::Register_8Bit reg1, 
+bool i8080::i8080_Flags::check_AC(i8080_Registers::Register_8Bit reg1,
 					i8080_Registers::Register_8Bit reg2)
 {
 	bool boolResult = false;
@@ -148,14 +150,14 @@ bool i8080_Flags::check_AC(i8080_Registers::Register_8Bit reg1,
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_P()
+bool i8080::i8080_Flags::check_P()
 {
 		bool boolResult = false;
 	
 	int intBitPosition = 0;
 	int intBitCount = 0;
 	
-	uint8_t uint8_InitialA = p_cpu->registers.A.get();
+	uint8_t uint8_InitialA = registers->A.get();
 	
 	uint8_t uint8_RegisterTemp = 0x00;
 	
@@ -185,7 +187,7 @@ bool i8080_Flags::check_P()
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_P(i8080_Registers::Register_8Bit reg)
+bool i8080::i8080_Flags::check_P(i8080_Registers::Register_8Bit reg)
 {
 	bool boolResult = false;
 	
@@ -223,7 +225,7 @@ bool i8080_Flags::check_P(i8080_Registers::Register_8Bit reg)
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_C(i8080_Registers::Register_8Bit reg1, 
+bool i8080::i8080_Flags::check_C(i8080_Registers::Register_8Bit reg1,
 					i8080_Registers::Register_8Bit reg2)
 {
 	bool boolResult = 0;
@@ -272,7 +274,7 @@ bool i8080_Flags::check_C(i8080_Registers::Register_8Bit reg1,
  * [RETURN] true 
  * [RETURN] false 
 */
-bool i8080_Flags::check_C(i8080_Registers::Register_16Bit reg1, i8080_Registers::Register_16Bit reg2)
+bool i8080::i8080_Flags::check_C(i8080_Registers::Register_16Bit reg1, i8080_Registers::Register_16Bit reg2)
 {
 	bool boolResult = 0;
 
@@ -309,3 +311,4 @@ bool i8080_Flags::check_C(i8080_Registers::Register_16Bit reg1, i8080_Registers:
 
 	return boolResult;
 }
+

@@ -5,7 +5,7 @@
  * [DATE] 2021-05-21
 */
 
-#include "i8080_IO.h"
+#include "i8080.h"
 
 /**
  * [DESCRIPTION] Set an index in the IO buffer to the passed value
@@ -13,7 +13,7 @@
  * [PARAM] index 
  * [PARAM] val 
 */
-void i8080_IO::IO::set(int index, uint8_t val)
+void i8080::i8080_IO::IO::set(int index, uint8_t val)
 {
 	buffer[index] = val;
 }
@@ -24,7 +24,7 @@ void i8080_IO::IO::set(int index, uint8_t val)
  * [PARAM] index 
  * [RETURN] uint8_t 
 */
-uint8_t i8080_IO::IO::get(int index)
+uint8_t i8080::i8080_IO::IO::get(int index)
 {
 	if (index < 256) {
         return buffer[index];
@@ -38,7 +38,7 @@ uint8_t i8080_IO::IO::get(int index)
  * [DESCRIPTION] Construct a new i8080_IO::IO::IO object
  * 
 */
-i8080_IO::IO::IO()
+i8080::i8080_IO::IO::IO()
 {
 	buffer[255] = { 0 };
 };

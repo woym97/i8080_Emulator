@@ -5,7 +5,7 @@
  * [DATE] 2021-05-21
 */
 
-#include "i8080_Registers.h"
+#include "i8080.h"
 
 /**
  * [DESCRIPTION] Get the value of two combined 8 bit registers
@@ -14,7 +14,7 @@
  * [PARAM] reg2 
  * [RETURN] uint16_t 
 */
-uint16_t i8080_Registers::getCombinedReg(Register_8Bit reg1, Register_8Bit reg2)
+uint16_t i8080::i8080_Registers::getCombinedReg(Register_8Bit reg1, Register_8Bit reg2)
 {
 	return (reg1.get() << 8) | reg2.get();
 }
@@ -24,7 +24,7 @@ uint16_t i8080_Registers::getCombinedReg(Register_8Bit reg1, Register_8Bit reg2)
  * 
  * [RETURN] uint16_t 
 */
-uint16_t i8080_Registers::get_BC()
+uint16_t i8080::i8080_Registers::get_BC()
 {
 	return getCombinedReg(B,C);
 }
@@ -34,7 +34,7 @@ uint16_t i8080_Registers::get_BC()
  * 
  * [RETURN] uint16_t 
 */
-uint16_t i8080_Registers::get_HL()
+uint16_t i8080::i8080_Registers::get_HL()
 {
 	return getCombinedReg(H,L);
 }
@@ -44,7 +44,7 @@ uint16_t i8080_Registers::get_HL()
  * 
  * [RETURN] uint16_t 
 */
-uint16_t i8080_Registers::get_DE()
+uint16_t i8080::i8080_Registers::get_DE()
 {
 	return getCombinedReg(D,E);
 }
@@ -56,7 +56,7 @@ uint16_t i8080_Registers::get_DE()
  * [PARAM] reg2 
  * [RETURN] uint16_t 
 */
-void i8080_Registers::setCombinedReg(Register_8Bit reg1, Register_8Bit reg2, uint16_t val)
+void i8080::i8080_Registers::setCombinedReg(Register_8Bit reg1, Register_8Bit reg2, uint16_t val)
 {
 	reg1.set(val & 0xff); 
     reg2.set((val >> 8) & 0xff);
@@ -67,7 +67,7 @@ void i8080_Registers::setCombinedReg(Register_8Bit reg1, Register_8Bit reg2, uin
  * 
  * [RETURN] uint16_t 
 */
-void i8080_Registers::set_BC(uint16_t val)
+void i8080::i8080_Registers::set_BC(uint16_t val)
 {
 	setCombinedReg(B, C, val);
 }
@@ -77,7 +77,7 @@ void i8080_Registers::set_BC(uint16_t val)
  * 
  * [RETURN] uint16_t 
 */
-void i8080_Registers::set_HL(uint16_t val)
+void i8080::i8080_Registers::set_HL(uint16_t val)
 {
 	setCombinedReg(H, L, val);
 }
@@ -87,7 +87,7 @@ void i8080_Registers::set_HL(uint16_t val)
  * 
  * [RETURN] uint16_t 
 */
-void i8080_Registers::set_DE(uint16_t val)
+void i8080::i8080_Registers::set_DE(uint16_t val)
 {
 	setCombinedReg(D, E, val);
 }
@@ -97,7 +97,7 @@ void i8080_Registers::set_DE(uint16_t val)
  * 
  * [PARAM] steps 
 */
-void i8080_Registers::inc_PC(int steps)
+void i8080::i8080_Registers::inc_PC(int steps)
 {
 	PC.set(PC.get() + steps);
 }
@@ -106,7 +106,7 @@ void i8080_Registers::inc_PC(int steps)
  * [DESCRIPTION] Construct a new i8080 Registers::i8080 Registers object
  * 
 */
-i8080_Registers::i8080_Registers()
+i8080::i8080_Registers::i8080_Registers()
 {
 	A.set(0);
 	B.set(0);
@@ -124,7 +124,7 @@ i8080_Registers::i8080_Registers()
  * 
  * [RETURN] uint16_t 
 */
-uint16_t i8080_Registers::Register_16Bit::get()
+uint16_t i8080::i8080_Registers::Register_16Bit::get()
 {
 	return val;
 }
@@ -134,7 +134,7 @@ uint16_t i8080_Registers::Register_16Bit::get()
  * 
  * [PARAM] i 
 */
-void i8080_Registers::Register_16Bit::set(uint16_t i)
+void i8080::i8080_Registers::Register_16Bit::set(uint16_t i)
 {
 	val = i;
 }
@@ -144,7 +144,7 @@ void i8080_Registers::Register_16Bit::set(uint16_t i)
  * 
  * [RETURN] uint8_t 
 */
-uint8_t i8080_Registers::Register_8Bit::get()
+uint8_t i8080::i8080_Registers::Register_8Bit::get()
 {
 	return val;
 }
@@ -154,7 +154,7 @@ uint8_t i8080_Registers::Register_8Bit::get()
  * 
  * [PARAM] i 
 */
-void i8080_Registers::Register_8Bit::set(uint8_t i)
+void i8080::i8080_Registers::Register_8Bit::set(uint8_t i)
 {
 	val = i;
 }

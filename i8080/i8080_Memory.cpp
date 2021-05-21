@@ -5,7 +5,7 @@
  * [DATE] 2021-05-21
 */
 
-#include "i8080_Memory.h"
+#include "i8080.h"
 
 /**
  * [DESCRIPTION] Returns the memory value at the passed index
@@ -13,7 +13,7 @@
  * [PARAM] index 
  * [RETURN] uint8_t 
 */
-uint8_t i8080_Memory::get(uint16_t index)
+uint8_t i8080::i8080_Memory::get(uint16_t index)
 {
 	return memory[index];
 }
@@ -24,7 +24,7 @@ uint8_t i8080_Memory::get(uint16_t index)
  * [PARAM] index 
  * [PARAM] val 
 */
-void i8080_Memory::set(uint16_t index, uint8_t val)
+void i8080::i8080_Memory::set(uint16_t index, uint8_t val)
 {
 	memory[index] = val;
 }
@@ -34,7 +34,7 @@ void i8080_Memory::set(uint16_t index, uint8_t val)
  * 
  * [RETURN] uint16_t 
 */
-uint16_t i8080_Memory::get_Adr()
+uint16_t i8080::i8080_Memory::get_Adr()
 {
 	// MM-Modified this from [1] to [2] first according to i8080 Manual for JMP
     uint16_t uint16_AddrTemp = 0x0000;
@@ -49,9 +49,9 @@ uint16_t i8080_Memory::get_Adr()
  * 
  * [RETURN] uint8_t 
 */
-uint8_t i8080_Memory::get_M()
+uint8_t i8080::i8080_Memory::get_M()
 {
-	return get(p_cpu->registers.get_HL());
+	return get(registers->get_HL());
 }
 
 /**
@@ -59,9 +59,9 @@ uint8_t i8080_Memory::get_M()
  * 
  * [PARAM] val 
 */
-void i8080_Memory::set_M(uint8_t val)
+void i8080::i8080_Memory::set_M(uint8_t val)
 {
-	set(p_cpu->registers.get_HL(), val);
+	set(registers->get_HL(), val);
 }
 
 /**
@@ -70,7 +70,7 @@ void i8080_Memory::set_M(uint8_t val)
  * [PARAM] fileName 
  * [PARAM] address 
 */
-void i8080_Memory::loadRom(const char* fileName, size_t address)
+void i8080::i8080_Memory::loadRom(const char* fileName, size_t address)
 {
 	// Open the ROM file
 #pragma warning(disable:4996)
@@ -106,7 +106,9 @@ void i8080_Memory::loadRom(const char* fileName, size_t address)
  * [DESCRIPTION] Construct a new i8080 Memory::i8080 Memory object
  * 
 */
-i8080_Memory::i8080_Memory()
+i8080::i8080_Memory::i8080_Memory(i8080_Registers* parent_registers)
 {
 	opCode_Array[3] = { 0 };
-};
+	registers = parent_registers;
+}
+
