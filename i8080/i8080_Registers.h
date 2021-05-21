@@ -38,24 +38,31 @@ public:
             void set(uint16_t i);
     };
 
-    Register_8Bit A;
-    Register_8Bit B;
-    Register_8Bit C;
-    Register_8Bit D;
-    Register_8Bit E;
-    Register_8Bit H;
-    Register_8Bit L;
-    Register_16Bit SP;
-    Register_16Bit PC;
+    // I8080 REGISTERS
+    Register_8Bit A;    // Register A
+    Register_8Bit B;    // Register B
+    Register_8Bit C;    // Register C
+    Register_8Bit D;    // Register D
+    Register_8Bit E;    // Register E
+    Register_8Bit H;    // Register H
+    Register_8Bit L;    // Register L
+    Register_16Bit SP;  // Stack Pointer
+    Register_16Bit PC;  // Program Counter
 
+    // SPECIAL REGISTER GET/SET
     uint16_t    get_BC();
     uint16_t    get_HL();
     uint16_t    get_DE();
     void        set_BC(uint16_t val);
     void        set_HL(uint16_t val);
     void        set_DE(uint16_t val);
-    uint8_t     get_PSW();
+
+    // PROGRAM COUNTER
     void        inc_PC(int steps);
 
     i8080_Registers();
+
+private:
+    uint16_t getCombinedReg(Register_8Bit reg1, Register_8Bit reg2);
+    void     setCombinedReg(Register_8Bit reg1, Register_8Bit reg2, uint16_t val);
 };
