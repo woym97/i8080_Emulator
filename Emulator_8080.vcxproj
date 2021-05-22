@@ -34,6 +34,7 @@
     <ClInclude Include="Emulator\Emulator.h" />
     <ClInclude Include="i8080\i8080.h" />
     <ClInclude Include="SpaceInvaders\SpaceInvaders.h" />
+    <ClInclude Include="testWriter.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

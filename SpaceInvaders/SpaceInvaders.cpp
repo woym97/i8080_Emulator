@@ -6,6 +6,7 @@
 */
 
 #include "SpaceInvaders.h"
+#include "../testWriter.h"
 
 /**
  * [DESCRIPTION] Get the input from SDL and convert it to a
@@ -236,6 +237,12 @@ void SpaceInvaders::mainLoop()
 				next_interrupt_to_send = next_interrupt_to_send == 1 ? 2 : 1;
 				next_interrupt_cc += interrupt_interval;
 			}
+
+			// DEBUG
+			writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), cpu->clock->getCurrentCCs(),
+				cpu->registers->PC.get(), cpu->registers->A.get(), cpu->registers->B.get(), cpu->registers->C.get(),
+				cpu->registers->D.get(), cpu->registers->E.get(), cpu->registers->H.get(), cpu->registers->L.get(),
+				cpu->flags->Z.get(), cpu->flags->S.get(), cpu->flags->P.get(), cpu->flags->C.get(), cpu->flags->AC.get());
 
 			// execute the opcode
 			cpu->execute->runOpCode();
