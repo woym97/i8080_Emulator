@@ -108,7 +108,20 @@ void i8080::i8080_Memory::loadRom(const char* fileName, size_t address)
 */
 i8080::i8080_Memory::i8080_Memory(i8080_Registers* parent_registers)
 {
-	opCode_Array[3] = { 0 };
+	opCode_Array = { 0 };
 	registers = parent_registers;
+	memory = (uint8_t*)malloc(0x10000);
+	memset(memory, 0, 0x10000);
+}
+
+/**
+ * [DESCRIPTION] Returns the memory address at the passed index
+ *
+ * [PARAM] index
+ * [RETURN] void*
+*/
+void* i8080::i8080_Memory::returnPtrToMem(int index)
+{
+	return (void*)&memory[0x2400];
 }
 

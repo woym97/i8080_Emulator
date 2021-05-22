@@ -60,3 +60,12 @@ void i8080::i8080_Clock::resetClockTimer()
 	(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
 }
 
+/**
+ * [DESCRIPTION] Return private clock cycles
+ *
+*/
+uint64_t i8080::i8080_Clock::getCurrentCCs()
+{
+    return cycles;
+}
+

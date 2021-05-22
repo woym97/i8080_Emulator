@@ -212,6 +212,13 @@ Emulator::~Emulator()
 	closeGameWindow();
 };
 
+/**
+ * [DESCRIPTION] Run Space invaders
+ *
+*/
 void Emulator::runSpaceInvaders()
 {
+	SpaceInvaders* game;
+	game = new SpaceInvaders(gwRenderer);
+	game->runGame();
 }

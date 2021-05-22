@@ -37,16 +37,16 @@ i8080::i8080_OpCodes::i8080_OpCodes(i8080_Registers* parent_register,
 /**
  * [DESCRIPTION] Main caller of all the opcodes
  *      - Also performs a preliminary increment of the PC
- * 
- * [PARAM] passed_code 
+ *
+ * [PARAM] passed_code
 */
-void i8080::i8080_OpCodes::runOpCode(unsigned char passed_code)
+void i8080::i8080_OpCodes::runOpCode()
 {
-
     // Inc the PC tha default step of 1
     registers->inc_PC(1);
+    //printf("%d\n", memory->opCode_Array[0]);
 
-    switch(passed_code) {
+    switch(memory->opCode_Array[0]) {
         case 0x00: func_NOP();        break;
         case 0x01: func_LXI_B_D16();  break;
         case 0x02: func_STAX_B();     break;
@@ -596,7 +596,7 @@ void i8080::i8080_OpCodes::func_CMP_Registers(i8080_Registers::Register_8Bit &re
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);;
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
 	
 };
 

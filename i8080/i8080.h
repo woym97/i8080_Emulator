@@ -36,6 +36,7 @@ public:
     i8080_IO        *io;
     i8080_OpCodes   *execute;
     void            sendInterrupt(int itr_num);
+    void            step();                                // step the PC to the next cycle
 
     // CONSTRUCTOR/DECONSTRUCTOR
     i8080();
@@ -59,6 +60,7 @@ public:
         int         getCyclesToRun();       // get the clock cycles to run 
         void        incClockCycles(int cyc);// increment the cycles by passed value
         void        resetClockTimer();      // reset the timer
+        uint64_t    getCurrentCCs();        // return the current clock cycles
         i8080_Clock();                      // constructor
     };
     // CLOCK CLASS END =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -212,6 +214,7 @@ public:
         void        set_M(uint8_t val);                 // set M location from memory
         void        loadRom(const char* fileName, size_t address);  // load ROM into mem
         i8080_Memory(i8080_Registers* parent_registers);
+        void*       returnPtrToMem(int index);          // return a pointer to a specfic memory index
     };
     // MEMORY CLASS END =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -505,8 +508,7 @@ public:
         void  func_CPI_D8();
         void  func_RST_7();
     public:
-        // MAIN CALLER
-        void runOpCode(unsigned char passed_code);
+        void runOpCode();
         i8080_OpCodes(i8080_Registers* parent_register, i8080_Memory* parent_memory,  i8080_Flags* parent_flags, i8080_Clock* parent_clock, i8080_IO* parent_IO);
     };
     // OPCODE CLASS END =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

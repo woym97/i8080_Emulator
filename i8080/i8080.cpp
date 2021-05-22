@@ -56,6 +56,16 @@ void i8080::sendInterrupt(int itr_num)
 };
 
 /**
+ * [DESCRIPTION] Steps the CPU to the next opcode
+*/
+void i8080::step()
+{
+    memory->opCode_Array[0] = memory->get(registers->PC.get());
+    memory->opCode_Array[1] = memory->get(registers->PC.get() + 0x0001);
+    memory->opCode_Array[2] = memory->get(registers->PC.get() + 0x0002);
+}
+
+/**
  * [DESCRIPTION] Construct a new i8080::i8080 object by pointing the
  *               child components to this object (only if they need access)
  * 
@@ -82,4 +92,5 @@ i8080::~i8080()
     delete clock;
     delete io;
     delete execute;
+    free(memory);
 }

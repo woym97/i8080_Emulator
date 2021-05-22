@@ -1,4 +1,7 @@
-﻿  i8080.cpp
+﻿  Emulator.cpp
+  SpaceInvaders.cpp
+C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\SpaceInvaders\SpaceInvaders.cpp(218,52): warning C4244: '=': conversion from 'uint64_t' to 'int', possible loss of data
+  i8080.cpp
   i8080_Clock.cpp
 C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\i8080\i8080_Clock.cpp(31,32): warning C4244: 'return': conversion from 'uint64_t' to 'int', possible loss of data
   i8080_Flags.cpp
@@ -6,5 +9,6 @@ C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\i8080\i8080_Clock.cpp(31,3
   i8080_Memory.cpp
   i8080_Opcodes.cpp
   i8080_Registers.cpp
+  main.cpp
   Generating Code...
   Emulator_8080.vcxproj -> C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\x64\Debug\Emulator_8080.exe
