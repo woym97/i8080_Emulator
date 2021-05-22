@@ -10,6 +10,7 @@
 #include "../i8080/i8080.h"
 #include "../Emulator/Emulator.h"
 #include <SDL.h>
+#include <SDL_mixer.h>
 
 /**
  * [DESCRIPTION] Object that represents the possible inputs in
@@ -53,7 +54,8 @@ class SpaceInvaders {
         void            mainLoop();         // main game loop
         void            prepareVRAM();      // prepare the VRAM for the space invaders screen
         void            resetInputs();      // reset inputs specific to space invaders
-        void            performShift();     // special i8080 hardware 
+        void            performShift();     // special i8080 hardware
+        void            updateSound();      // function to play the sound effects
     public:
         void            runGame();          // run the game
                         SpaceInvaders(SDL_Renderer* renderer);   // constructor

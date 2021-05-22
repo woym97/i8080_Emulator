@@ -4636,9 +4636,9 @@ void i8080::i8080_OpCodes::func_OUT_D8() {
     registers->inc_PC(1);
 
     // Moves the Accumulator into the Output Port specified in opCode_Array[1]
-    if ((memory->opCode_Array[1] == 0x02) && (registers->A.get() != 0x00)) {
-        printf("Setting Offset\n");
-    }
+    //if ((memory->opCode_Array[1] == 0x02) && (registers->A.get() != 0x00)) {
+        //printf("Setting Offset\n");
+    //}
     io->output.set(memory->opCode_Array[1], registers->A.get());
     //system("pause");
 

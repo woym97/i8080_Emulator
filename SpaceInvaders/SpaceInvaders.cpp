@@ -8,6 +8,16 @@
 #include "SpaceInvaders.h"
 #include "../testWriter.h"
 
+Mix_Chunk* wav_ShotSoundEffect;
+Mix_Chunk* wav_ExplosionSoundEffect;
+Mix_Chunk* wav_FastInvader1SoundEffect;
+Mix_Chunk* wav_FastInvader2SoundEffect;
+Mix_Chunk* wav_FastInvader3SoundEffect;
+Mix_Chunk* wav_FastInvader4SoundEffect;
+Mix_Chunk* wav_InvaderKilledSoundEffect;
+Mix_Chunk* wav_UFOHighPitchSoundEffect;
+Mix_Chunk* wav_UFOLowPitchSoundEffect;
+
 /**
  * [DESCRIPTION] Get the input from SDL and convert it to a
  * 				 action recognized by the game
@@ -207,6 +217,23 @@ void SpaceInvaders::mainLoop()
 	uint64_t next_interrupt_cc = interrupt_interval;
 	int next_interrupt_to_send = 1;
 
+	// to setup the sound
+	wav_ShotSoundEffect = Mix_LoadWAV("shoot.wav");
+	wav_ExplosionSoundEffect = Mix_LoadWAV("explosion.wav");
+	wav_FastInvader1SoundEffect = Mix_LoadWAV("fastinvader1.wav");
+	wav_FastInvader2SoundEffect = Mix_LoadWAV("fastinvader2.wav");
+	wav_FastInvader3SoundEffect = Mix_LoadWAV("fastinvader3.wav");
+	wav_FastInvader4SoundEffect = Mix_LoadWAV("fastinvader4.wav");
+	wav_InvaderKilledSoundEffect = Mix_LoadWAV("invaderkilled.wav");
+	wav_UFOHighPitchSoundEffect = Mix_LoadWAV("ufo_highpitch.wav");
+	wav_UFOLowPitchSoundEffect = Mix_LoadWAV("ufo_lowpitch.wav");
+
+	// Set Sounds to off on startup
+	cpu->io->output.set(3, 0x00);
+	cpu->io->output.set(5, 0x00);
+
+	resetInputs();
+
 	while (!quit_flag) {
 		// reset the inputs
 		resetInputs();
@@ -244,23 +271,41 @@ void SpaceInvaders::mainLoop()
 
 			// execute the opcode
 			cpu->execute->runOpCode();
+			
+			
 
 			// check for shift condition
 			if ((cpu->memory->opCode_Array[0] == 0xD3) &&
 				(cpu->memory->opCode_Array[1] == 0x04)) {
 				performShift();
 			}
+
+			
 		}
 
 		// every 1/60 seconds update the screen and reset timer
-		if (SDL_GetTicks() - game_timer > (1000 / 30)) {
+		if (SDL_GetTicks() - game_timer > (1000 / 60)) {
 			game_timer = SDL_GetTicks();
 			loadScreenUpdate();
+			updateSound();
+			cpu->clock->resetClockTimer();
 		}
+		
 
-		cpu->clock->resetClockTimer();
+		//cpu->clock->resetClockTimer();
 
 	}
+
+	Mix_FreeChunk(wav_ShotSoundEffect);
+	Mix_FreeChunk(wav_ExplosionSoundEffect);
+	Mix_FreeChunk(wav_FastInvader1SoundEffect);
+	Mix_FreeChunk(wav_FastInvader2SoundEffect);
+	Mix_FreeChunk(wav_FastInvader3SoundEffect);
+	Mix_FreeChunk(wav_FastInvader4SoundEffect);
+	Mix_FreeChunk(wav_InvaderKilledSoundEffect);
+	Mix_FreeChunk(wav_UFOHighPitchSoundEffect);
+	Mix_FreeChunk(wav_UFOLowPitchSoundEffect);
+	Mix_CloseAudio();
 }
 
 /**
@@ -359,7 +404,7 @@ void SpaceInvaders::performShift()
 	//	write $aa->$aa00,
 	//	write $ff->$ffaa,
 	//	write $12->$12ff, ..
-	printf("PreShiftRegister: %4X\n", shift_register.get());
+	//printf("PreShiftRegister: %4X\n", shift_register.get());
 	uint16_t uint16_InitialShiftRegister = shift_register.get();
 	uint16_t uint16_ShiftRegisterTemp = 0x0000;
 	uint8_t uint8_ShiftLow = 0x00;
@@ -373,13 +418,14 @@ void SpaceInvaders::performShift()
 	uint16_ShiftRegisterTemp = uint16_ShiftRegisterTemp | uint8_ShiftHigh;
 		
 	shift_register.set(uint16_ShiftRegisterTemp);
-	printf("PostShiftRegister: %4X\n", shift_register.get());
+	//printf("PostShiftRegister: %4X\n", shift_register.get());
 
 	//	Writing to port 2 (bits 0, 1, 2) sets the offset for the 8 bit result, eg.
 	
 	uint8_t uint8_Offset = (cpu->io->output.get(2) & 0x07);
 	uint8_t uint8_RegisterTemp = 0x00;
-	printf("Offset: %4X\n", uint8_Offset);
+	//printf("Offset: %4X\n", uint8_Offset);
+	// 
 	//	offset 0:
 	//rrrrrrrr		result = xxxxxxxx
 	//	xxxxxxxxyyyyyyyy
@@ -444,6 +490,80 @@ void SpaceInvaders::performShift()
 	}
 
 	cpu->io->input.set(3, uint8_RegisterTemp);
+
+}
+
+/**
+* [DESCRIPTION] Function to update the Sound Effects of the game
+* Helpful links:	https://gigi.nullneuron.net/gigilabs/playing-a-wav-file-using-sdl2/
+*					https://soundprogramming.net/programming/tutorial-using-sdl2-and-sdl_mixer-to-play-samples/
+*/
+void SpaceInvaders::updateSound()
+{
+	uint8_t uint8_Output3Temp = cpu->io->output.get(3); // i8080.state.get_Outputs(3);
+	uint8_t uint8_Output5Temp = cpu->io->output.get(5); // i8080.state.get_Outputs(5);
+
+	//Port 3: (discrete sounds)
+	//bit 0 = UFO(repeats)        SX0 0.raw
+	if ((uint8_Output3Temp & 0x01) == 0x01) {
+		//func_PlayFastUFOHighSound();
+		//wav_UFO_HighPitch.play();
+		Mix_PlayChannel(-1, wav_UFOHighPitchSoundEffect, 0);
+	}
+
+	//bit 1 = Shot                 SX1 1.raw
+	if ((uint8_Output3Temp & 0x02) == 0x01) {
+		Mix_PlayChannel(-1, wav_ShotSoundEffect, 0);
+	}
+
+	//bit 2 = Flash(player die)   SX2 2.raw
+	if ((uint8_Output3Temp & 0x04) == 0x01) {
+		//func_PlayExplosionSound();
+		//wav_Explosion.play();
+		Mix_PlayChannel(-1, wav_ExplosionSoundEffect, 0);
+	}
+
+	//bit 3 = Invader die          SX3 3.raw
+	if ((uint8_Output3Temp & 0x08) == 0x01)
+	{
+		printf("Play Killed\n");
+		Mix_PlayChannel(-1, wav_InvaderKilledSoundEffect, 0);
+	}
+
+	//Port 5 :
+	//bit 0 = Fleet movement 1     SX6 4.raw
+	if ((uint8_Output5Temp & 0x01) == 0x01)
+	{
+		printf("Output5: %d\n", uint8_Output5Temp);
+
+		printf("Play Invader1\n");
+		Mix_PlayChannel(-1, wav_FastInvader1SoundEffect, 0);
+	}
+
+	//bit 1 = Fleet movement 2     SX7 5.raw
+	if ((uint8_Output5Temp & 0x02) == 0x01) {
+		
+		printf("Play Invader2\n");
+		Mix_PlayChannel(-1, wav_FastInvader2SoundEffect, 0);
+	}
+
+	//bit 2 = Fleet movement 3     SX8 6.raw
+	if ((uint8_Output5Temp & 0x04) == 0x01) {
+	
+		printf("Play Invader3\n");
+		Mix_PlayChannel(-1, wav_FastInvader3SoundEffect, 0);
+	}
+
+	//bit 3 = Fleet movement 4     SX9 7.raw
+	if ((uint8_Output5Temp & 0x08) == 0x01) {
+		
+		printf("Play Invader4\n");
+		Mix_PlayChannel(-1, wav_FastInvader4SoundEffect, 0);
+	}
+	//bit 4 = UFO Hit              SX10 8.raw
+
+	//cpu->io->output.set(3, 0x00); // (cpu->io->output.get(3) & 0x01));
+	//cpu->io->output.set(5, 0x00);
 
 }
 
