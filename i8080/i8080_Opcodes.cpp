@@ -315,7 +315,7 @@ void i8080::i8080_OpCodes::runOpCode()
  * [PARAM] reg_Source1 
  * [PARAM] reg_Source2 
 */
-void i8080::i8080_OpCodes::func_LXI_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2)
+void i8080::i8080_OpCodes::func_LXI_Registers(i8080_Registers::Register_8Bit& reg_Source1, i8080_Registers::Register_8Bit& reg_Source2)
 {
 	reg_Source1.set(memory->opCode_Array[2]);
 	reg_Source2.set(memory->opCode_Array[1]);
@@ -356,7 +356,7 @@ void i8080::i8080_OpCodes::func_INX_Registers(i8080_Registers::Register_8Bit &re
  * 
  * [PARAM] reg_Source 
 */
-void i8080::i8080_OpCodes::func_INR_Registers(i8080_Registers::Register_8Bit &reg_Source)
+void i8080::i8080_OpCodes::func_INR_Registers(i8080_Registers::Register_8Bit& reg_Source)
 {
 	uint8_t uint8_RegisterTemp = reg_Source.get();
 	uint8_t uint8_ResultTemp = uint8_RegisterTemp + 0x01;
@@ -365,7 +365,10 @@ void i8080::i8080_OpCodes::func_INR_Registers(i8080_Registers::Register_8Bit &re
 	
 	// S	Z	AC	P
 	
-	flags->set_S_Z_P();
+	//flags->set_S_Z_P();
+    flags->set_S(uint8_ResultTemp);
+    flags->set_Z(uint8_ResultTemp);
+    flags->set_P(uint8_ResultTemp);
 	flags->set_AC(uint8_RegisterTemp, 0x01);
 	
 };
@@ -375,7 +378,7 @@ void i8080::i8080_OpCodes::func_INR_Registers(i8080_Registers::Register_8Bit &re
  * 
  * [PARAM] reg_Source 
 */
-void i8080::i8080_OpCodes::func_DCR_Registers(i8080_Registers::Register_8Bit &reg_Source)
+void i8080::i8080_OpCodes::func_DCR_Registers(i8080_Registers::Register_8Bit& reg_Source)
 {
 	uint8_t uint8_RegisterTemp = reg_Source.get();
 	uint8_t uint8_RegisterTwosCompliment = (~(reg_Source.get())) + 0x01;
@@ -384,7 +387,11 @@ void i8080::i8080_OpCodes::func_DCR_Registers(i8080_Registers::Register_8Bit &re
 	reg_Source.set(uint8_ResultTemp);
 	
 	// S	Z	AC	P
-	flags->set_S_Z_P();
+	//flags->set_S_Z_P();
+    flags->set_S(uint8_ResultTemp);
+    flags->set_Z(uint8_ResultTemp);
+    flags->set_P(uint8_ResultTemp);
+    
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
 	flags->AC.set(false);	
 };
@@ -486,11 +493,12 @@ void i8080::i8080_OpCodes::func_SUB_Registers(i8080_Registers::Register_8Bit &re
 void i8080::i8080_OpCodes::func_SBB_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
-	uint8_t uint8_RegisterTwosCompliment = (~(reg_Source.get())) + 0x01;
+    uint8_t uint8_RegisterTwosCompliment = (~(reg_Source.get())) + 0x01;
 	uint8_t uint8_RegisterTemp = reg_Source.get();
 	
 	if (flags->C.get() == true){
 		uint8_RegisterTemp = uint8_RegisterTemp + 0x01;
+        uint8_RegisterTwosCompliment = (~(uint8_RegisterTemp)) + 0x01;
 	}
 	
 	uint8_t uint8_ResultTemp = uint8_InitialA - uint8_RegisterTemp;
@@ -501,10 +509,10 @@ void i8080::i8080_OpCodes::func_SBB_Registers(i8080_Registers::Register_8Bit &re
 	
 	flags->set_S_Z_P();
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
-	flags->set_AC(uint8_InitialA, uint8_RegisterTwosCompliment);
+	flags->set_AC(uint8_RegisterTemp, uint8_RegisterTwosCompliment);
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);;
+	flags->set_C(uint8_RegisterTemp, uint8_RegisterTwosCompliment, true);;
 	
 };
 
@@ -543,8 +551,8 @@ void i8080::i8080_OpCodes::func_XRA_Registers(i8080_Registers::Register_8Bit &re
 	// S	Z	AC	P	CY
 	
 	flags->set_S_Z_P();
-	flags->AC.set(0);
-	flags->C.set(0);
+	flags->AC.set(false);
+	flags->C.set(false);
 	
 	
 };
@@ -564,7 +572,7 @@ void i8080::i8080_OpCodes::func_ORA_Registers(i8080_Registers::Register_8Bit &re
 	// This differs from the documentation on other sites.
 	// S	Z	P	CY
 	flags->set_S_Z_P();
-	flags->C.set(0);
+	flags->C.set(false);
 	
 };
 
@@ -576,17 +584,17 @@ void i8080::i8080_OpCodes::func_ORA_Registers(i8080_Registers::Register_8Bit &re
 void i8080::i8080_OpCodes::func_CMP_Registers(i8080_Registers::Register_8Bit &reg_Source)
 {
 	uint8_t uint8_InitialA = registers->A.get();
-	uint8_t uint8_RegisterTwosCompliment = (~reg_Source.get()) + 0x01;
+	uint8_t uint8_RegisterTwosCompliment = (~(reg_Source.get()) + 0x01);
 	uint8_t uint8_ResultTemp = uint8_InitialA - reg_Source.get();
 	
 	// S	Z	AC	P	CY
-	flags->set_S(reg_Source.get());
+	flags->set_S(uint8_ResultTemp);
 	
 	if (uint8_InitialA == reg_Source.get()){
-		flags->Z.set(1);
+		flags->Z.set(true);
 	}
 	else {
-		flags->Z.set(0);
+		flags->Z.set(false);
 	}
 	
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
@@ -702,13 +710,13 @@ void i8080::i8080_OpCodes::func_NOP() {
 ////////////////////
 void i8080::i8080_OpCodes::func_LXI_B_D16() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(2);
+
     // Logic for: B <- byte 3, C <- byte 2
     func_LXI_Registers(registers->B, registers->C);
 
     clock->incClockCycles(10);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(2);
 
 }
 
@@ -938,13 +946,13 @@ void i8080::i8080_OpCodes::func_DCR_C() {
 ////////////////////
 void i8080::i8080_OpCodes::func_MVI_C_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: C <- byte 2
     func_MVI_Registers(registers->C, memory->opCode_Array[1]);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -1000,13 +1008,14 @@ void i8080::i8080_OpCodes::func_RRC() {
 ////////////////////
 void i8080::i8080_OpCodes::func_LXI_D_D16() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(2);
+
     // Logic for: D <- byte 3, E <- byte 2
     func_LXI_Registers(registers->D, registers->E);
 
     clock->incClockCycles(10);
 
-    // Inc PC to account for additional size
-    registers->inc_PC(2);
 
 }
 
@@ -1085,13 +1094,13 @@ void i8080::i8080_OpCodes::func_DCR_D() {
 ////////////////////
 void i8080::i8080_OpCodes::func_MVI_D_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: D <- byte 2
     func_MVI_Registers(registers->D, memory->opCode_Array[1] );
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -1235,13 +1244,13 @@ void i8080::i8080_OpCodes::func_DCR_E() {
 ////////////////////
 void i8080::i8080_OpCodes::func_MVI_E_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: E <- byte 2
     func_MVI_Registers(registers->E, memory->opCode_Array[1]);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -1298,13 +1307,13 @@ void i8080::i8080_OpCodes::func_RAR() {
 ////////////////////
 void i8080::i8080_OpCodes::func_LXI_H_D16() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(2);
+
     // Logic for: H <- byte 3, L <- byte 2
     func_LXI_Registers(registers->H, registers->L);
 
     clock->incClockCycles(10);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(2);
 
 }
 
@@ -1316,6 +1325,9 @@ void i8080::i8080_OpCodes::func_LXI_H_D16() {
 // Written By: Ruben
 ////////////////////
 void i8080::i8080_OpCodes::func_SHLD_ADR() {
+
+    // Inc PC to account for additional size
+    registers->inc_PC(2);
 
     // Logic for: (adr) <-L; (adr+1)<-H
     uint16_t uint16_AddressTemp = 0x0000;
@@ -1331,9 +1343,6 @@ void i8080::i8080_OpCodes::func_SHLD_ADR() {
 
     clock->incClockCycles(16);
 
-    // Inc PC to account for additional size
-    registers->inc_PC(2);
-
 }
 
 ////////////////////
@@ -1346,7 +1355,10 @@ void i8080::i8080_OpCodes::func_SHLD_ADR() {
 void i8080::i8080_OpCodes::func_INX_H() {
 
     // Logic for: HL <- HL + 1
-    registers->set_HL(registers->get_HL() + 1);
+    uint16_t uint16_InitialHL = registers->get_HL();
+    uint16_t uint16_ResultTemp = 0x0000;
+    uint16_ResultTemp = uint16_InitialHL + 0x0001;
+    registers->set_HL(uint16_ResultTemp);
 
     clock->incClockCycles(5);
 
@@ -1395,13 +1407,13 @@ void i8080::i8080_OpCodes::func_DCR_H() {
 ////////////////////
 void i8080::i8080_OpCodes::func_MVI_H_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: H <- byte 2
     func_MVI_Registers(registers->H, memory->opCode_Array[1]);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -1492,14 +1504,15 @@ void i8080::i8080_OpCodes::func_DAD_H() {
 ////////////////////
 void i8080::i8080_OpCodes::func_LHLD_ADR() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(2);
+
     // Logic for: L <- (adr); H<-(adr+1)
     registers->L.set(memory->get(memory->get_Adr()));
     registers->H.set(memory->get(memory->get_Adr() + 1));
 
     clock->incClockCycles(16);
 
-    // Inc PC to account for additional size
-    registers->inc_PC(2);
 
 }
 
@@ -1562,13 +1575,13 @@ void i8080::i8080_OpCodes::func_DCR_L() {
 ////////////////////
 void i8080::i8080_OpCodes::func_MVI_L_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: L <- byte 2
     func_MVI_Registers(registers->L, memory->opCode_Array[1]);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -1603,6 +1616,9 @@ void i8080::i8080_OpCodes::func_CMA() {
 ////////////////////
 void i8080::i8080_OpCodes::func_LXI_SP_D16() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(2);
+
     // Logic for: SP.hi <- byte 3, SP.lo <- byte 2
     //func_LXI_Registers(registers->SP, registers-> );
     uint16_t uint16_RegisterTemp = 0x0000;
@@ -1615,9 +1631,6 @@ void i8080::i8080_OpCodes::func_LXI_SP_D16() {
 
     clock->incClockCycles(10);
 
-    // Inc PC to account for additional size
-    registers->inc_PC(2);
-
 }
 
 ////////////////////
@@ -1629,15 +1642,15 @@ void i8080::i8080_OpCodes::func_LXI_SP_D16() {
 ////////////////////
 void i8080::i8080_OpCodes::func_STA_ADR() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(2);
+
     // Logic for: (adr) <- A
     uint8_t uint8_InitialA = registers->A.get();
     uint16_t uint16_InitialAddress = memory->get_Adr();
     memory->set(uint16_InitialAddress, uint8_InitialA);
 
     clock->incClockCycles(13);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(2);
 
 }
 
@@ -1727,13 +1740,13 @@ void i8080::i8080_OpCodes::func_DCR_M() {
 ////////////////////
 void i8080::i8080_OpCodes::func_MVI_M_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: (HL) <- byte 2
     memory->set_M(memory->opCode_Array[1]);
 
     clock->incClockCycles(10);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -1787,6 +1800,8 @@ void i8080::i8080_OpCodes::func_DAD_SP() {
 ////////////////////
 void i8080::i8080_OpCodes::func_LDA_ADR() {
 
+    registers->inc_PC(2);
+
     // Logic for: A <- (adr)
     uint16_t uint16_AddrTemp = memory->get_Adr();
     uint8_t uint8_InitialMemory = memory->get(uint16_AddrTemp);
@@ -1795,7 +1810,7 @@ void i8080::i8080_OpCodes::func_LDA_ADR() {
     clock->incClockCycles(13);
 
     // Inc PC to account for additional size
-    registers->inc_PC(2);
+    
 
 }
 
@@ -1858,13 +1873,16 @@ void i8080::i8080_OpCodes::func_DCR_A() {
 ////////////////////
 void i8080::i8080_OpCodes::func_MVI_A_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A <- byte 2
     func_MVI_Registers(registers->A, memory->opCode_Array[1]);
 
     clock->incClockCycles(7);
 
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
+    
+    
 
 }
 
@@ -3377,7 +3395,7 @@ void i8080::i8080_OpCodes::func_SUB_M() {
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, false);
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
 
     clock->incClockCycles(7);
 
@@ -3534,7 +3552,7 @@ void i8080::i8080_OpCodes::func_SBB_M() {
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, false);
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
     clock->incClockCycles(7);
 
 }
@@ -3824,8 +3842,8 @@ void i8080::i8080_OpCodes::func_XRA_M() {
 	// S	Z	AC	P	CY
 	
 	flags->set_S_Z_P();
-	flags->AC.set(0);
-	flags->C.set(0);
+	flags->AC.set(false);
+	flags->C.set(false);
 
     clock->incClockCycles(7);
 
@@ -4298,6 +4316,9 @@ void i8080::i8080_OpCodes::func_PUSH_B() {
 ////////////////////
 void i8080::i8080_OpCodes::func_ADI_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A <- A + byte
     uint8_t uint8_InitialA = registers->A.get();
     uint8_t uint8_Data = memory->opCode_Array[1];
@@ -4309,9 +4330,6 @@ void i8080::i8080_OpCodes::func_ADI_D8() {
     flags->set_C(uint8_InitialA, uint8_Data, false);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -4476,6 +4494,9 @@ void i8080::i8080_OpCodes::func_ACI_D8() {
 
     // Logic for: A <- A + data + CY
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     uint8_t uint8_InitialA = registers->A.get();
     uint8_t uint8_OpCodeValue = memory->opCode_Array[1];
 
@@ -4496,9 +4517,6 @@ void i8080::i8080_OpCodes::func_ACI_D8() {
 
     // Set flags: Z, S, P, CY, AC
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -4613,8 +4631,9 @@ void i8080::i8080_OpCodes::func_JNC_ADR() {
 ////////////////////
 void i8080::i8080_OpCodes::func_OUT_D8() {
 
-    // Logic for: special
-    // @TODO [Ruben ]: fill in logic
+    // Logic for: OUT_D8
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
 
     // Moves the Accumulator into the Output Port specified in opCode_Array[1]
     if ((memory->opCode_Array[1] == 0x02) && (registers->A.get() != 0x00)) {
@@ -4624,9 +4643,6 @@ void i8080::i8080_OpCodes::func_OUT_D8() {
     //system("pause");
 
     clock->incClockCycles(10);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -4686,6 +4702,9 @@ void i8080::i8080_OpCodes::func_PUSH_D() {
 ////////////////////
 void i8080::i8080_OpCodes::func_SUI_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A <- A - data
     uint8_t uint8_InitialA = registers->A.get();
 	uint8_t uint8_RegisterTwosCompliment = (~(memory->opCode_Array[1])) + 0x01;
@@ -4700,13 +4719,10 @@ void i8080::i8080_OpCodes::func_SUI_D8() {
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, false);
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
 
     // Set flags: Z, S, P, CY, AC
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -4806,7 +4822,9 @@ void i8080::i8080_OpCodes::func_JC_ADR() {
 ////////////////////
 void i8080::i8080_OpCodes::func_IN_D8() {
 
-    // Logic for: special
+    // Logic for: IN
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
     // @TODO [Madison]: fill in logic
 
     uint8_t uint8_RegisterTemp = io->input.get(memory->opCode_Array[1]);
@@ -4814,9 +4832,6 @@ void i8080::i8080_OpCodes::func_IN_D8() {
     registers->A.set(uint8_RegisterTemp);
 
     clock->incClockCycles(10);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -4861,6 +4876,9 @@ void i8080::i8080_OpCodes::func_CC_ADR() {
 ////////////////////
 void i8080::i8080_OpCodes::func_SBI_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A <- A - data - CY
     uint8_t uint8_InitialA = registers->A.get();
 	uint8_t uint8_RegisterTwosCompliment = (~(memory->opCode_Array[1])) + 0x01;
@@ -4884,12 +4902,10 @@ void i8080::i8080_OpCodes::func_SBI_D8() {
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, false);
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
 
     clock->incClockCycles(7);
 
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -5076,6 +5092,9 @@ void i8080::i8080_OpCodes::func_PUSH_H() {
 ////////////////////
 void i8080::i8080_OpCodes::func_ANI_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A <- A & data
     uint8_t uint8_ResultTemp = registers->A.get() & memory->opCode_Array[1];
 	
@@ -5089,9 +5108,6 @@ void i8080::i8080_OpCodes::func_ANI_D8() {
 	flags->C.set(false);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -5267,6 +5283,9 @@ void i8080::i8080_OpCodes::func_CPE_ADR() {
 ////////////////////
 void i8080::i8080_OpCodes::func_XRI_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A <- A ^ data
     uint8_t uint8_ResultTemp = registers->A.get() ^ memory->opCode_Array[1];
 	
@@ -5279,9 +5298,6 @@ void i8080::i8080_OpCodes::func_XRI_D8() {
 	flags->C.set(0);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -5522,6 +5538,9 @@ void i8080::i8080_OpCodes::func_PUSH_PSW() {
 ////////////////////
 void i8080::i8080_OpCodes::func_ORI_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A <- A | data
     uint8_t uint8_ResultTemp = registers->A.get() | memory->opCode_Array[1];
 
@@ -5535,9 +5554,6 @@ void i8080::i8080_OpCodes::func_ORI_D8() {
 
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 
@@ -5709,6 +5725,9 @@ void i8080::i8080_OpCodes::func_CM_ADR() {
 ////////////////////
 void i8080::i8080_OpCodes::func_CPI_D8() {
 
+    // Inc PC to account for additional size
+    registers->inc_PC(1);
+
     // Logic for: A - data
     uint8_t uint8_InitialA = registers->A.get();
 	uint8_t uint8_RegisterTwosCompliment = (~memory->opCode_Array[1]) + 0x01;
@@ -5718,10 +5737,10 @@ void i8080::i8080_OpCodes::func_CPI_D8() {
 	flags->set_S(uint8_ResultTemp);
 	
 	if (uint8_InitialA == memory->opCode_Array[1]) {
-		flags->Z.set(1);
+		flags->Z.set(true);
 	}
 	else {
-		flags->Z.set(0);
+		flags->Z.set(false);
 	}
 	
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
@@ -5731,12 +5750,9 @@ void i8080::i8080_OpCodes::func_CPI_D8() {
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, false);
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
 
     clock->incClockCycles(7);
-
-    // Inc PC to account for additional size
-    registers->inc_PC(1);
 
 }
 

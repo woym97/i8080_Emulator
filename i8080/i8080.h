@@ -122,7 +122,7 @@ public:
 
     private:
         uint16_t getCombinedReg(Register_8Bit reg1, Register_8Bit reg2);
-        void     setCombinedReg(Register_8Bit reg1, Register_8Bit reg2, uint16_t val);
+        void     setCombinedReg(Register_8Bit& reg1, Register_8Bit& reg2, uint16_t val);
     };
     // REGISTER CLASS END =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -232,21 +232,21 @@ public:
         i8080_IO        *io;                            // give the opcodes access to the io
 
         // GENERAL FUNCTION PROTOTYPES
-        void func_LXI_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2);
-        void func_INR_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_DCR_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_MOV_Registers(i8080_Registers::Register_8Bit &reg_Destination, i8080_Registers::Register_8Bit &reg_Source);
-        void func_MVI_Registers(i8080_Registers::Register_8Bit &reg_Destination, uint8_t uint8_Source);
-        void func_ADD_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_ADC_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_SUB_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_SBB_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_CMP_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_PUSH_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2);
-        void func_INX_Registers(i8080_Registers::Register_8Bit &reg_Source1, i8080_Registers::Register_8Bit &reg_Source2);
-        void func_ANA_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_XRA_Registers(i8080_Registers::Register_8Bit &reg_Source);
-        void func_ORA_Registers(i8080_Registers::Register_8Bit &reg_Source);
+        void func_LXI_Registers(i8080_Registers::Register_8Bit& reg_Source1, i8080_Registers::Register_8Bit& reg_Source2);
+        void func_INR_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_DCR_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_MOV_Registers(i8080_Registers::Register_8Bit& reg_Destination, i8080_Registers::Register_8Bit& reg_Source);
+        void func_MVI_Registers(i8080_Registers::Register_8Bit& reg_Destination, uint8_t uint8_Source);
+        void func_ADD_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_ADC_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_SUB_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_SBB_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_CMP_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_PUSH_Registers(i8080_Registers::Register_8Bit& reg_Source1, i8080_Registers::Register_8Bit& reg_Source2);
+        void func_INX_Registers(i8080_Registers::Register_8Bit& reg_Source1, i8080_Registers::Register_8Bit& reg_Source2);
+        void func_ANA_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_XRA_Registers(i8080_Registers::Register_8Bit& reg_Source);
+        void func_ORA_Registers(i8080_Registers::Register_8Bit& reg_Source);
         void func_General_RET();
         void func_General_CALL();
 

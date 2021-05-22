@@ -50,20 +50,20 @@ uint16_t i8080::i8080_Registers::get_DE()
 }
 
 /**
- * [DESCRIPTION] Get the value of two combined 8 bit registers
+ * [DESCRIPTION] Set the value of two combined 8 bit registers
  * 
  * [PARAM] reg1 
  * [PARAM] reg2 
- * [RETURN] uint16_t 
+ * [PARAM] uint16_t 
 */
-void i8080::i8080_Registers::setCombinedReg(Register_8Bit reg1, Register_8Bit reg2, uint16_t val)
+void i8080::i8080_Registers::setCombinedReg(Register_8Bit& reg1, Register_8Bit& reg2, uint16_t val)
 {
-	reg1.set(val & 0xff); 
-    reg2.set((val >> 8) & 0xff);
+	reg1.set((val >> 8) & 0xff);
+	reg2.set(val & 0xff);
 }
 
 /**
- * [DESCRIPTION] Returns the value fo the register BC combination
+ * [DESCRIPTION] Returns the value for the register BC combination
  * 
  * [RETURN] uint16_t 
 */

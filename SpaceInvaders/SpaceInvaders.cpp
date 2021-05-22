@@ -135,13 +135,13 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 			cpu->io->input.set(1, cpu->io->input.get(1) | 0x01);
 			break;
 		case SI_INPUT::P2_MOVE_LEFT:
-			cpu->io->input.set(1, cpu->io->input.get(2) | 0x20);
+			cpu->io->input.set(2, cpu->io->input.get(2) | 0x20);
 			break;
 		case SI_INPUT::P2_MOVE_RIGHT:
-			cpu->io->input.set(1, cpu->io->input.get(2) | 0x40);
+			cpu->io->input.set(2, cpu->io->input.get(2) | 0x40);
 			break;
 		case SI_INPUT::P2_FIRE:
-			cpu->io->input.set(1, cpu->io->input.get(2) | 0x10);
+			cpu->io->input.set(2, cpu->io->input.get(2) | 0x10);
 			break;
 		case SI_INPUT::P1_START:
 			cpu->io->input.set(1, cpu->io->input.get(1) | 0x04);
@@ -222,12 +222,6 @@ void SpaceInvaders::mainLoop()
 			// step the cpu to the next cycle
 			cpu->step();
 
-			// check for shift condition
-			if ((cpu->memory->opCode_Array[0] == 0xD3) && 
-				(cpu->memory->opCode_Array[1] == 0x04)) {
-				performShift();
-			}
-
 			// check for interrupt condition
 			// 2 clock cycles per micro second 
 			// 1/60 second = 16666 micro seconds
@@ -239,17 +233,23 @@ void SpaceInvaders::mainLoop()
 			}
 
 			// DEBUG
-			writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), cpu->clock->getCurrentCCs(),
-				cpu->registers->PC.get(), cpu->registers->A.get(), cpu->registers->B.get(), cpu->registers->C.get(),
+			writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), 0,
+				cpu->registers->SP.get(), cpu->registers->A.get(), cpu->registers->B.get(), cpu->registers->C.get(),
 				cpu->registers->D.get(), cpu->registers->E.get(), cpu->registers->H.get(), cpu->registers->L.get(),
 				cpu->flags->Z.get(), cpu->flags->S.get(), cpu->flags->P.get(), cpu->flags->C.get(), cpu->flags->AC.get());
 
 			// execute the opcode
 			cpu->execute->runOpCode();
+
+			// check for shift condition
+			if ((cpu->memory->opCode_Array[0] == 0xD3) &&
+				(cpu->memory->opCode_Array[1] == 0x04)) {
+				performShift();
+			}
 		}
 
 		// every 1/60 seconds update the screen and reset timer
-		if (SDL_GetTicks() - game_timer > (1000 / 60)) {
+		if (SDL_GetTicks() - game_timer > (1000 / 30)) {
 			game_timer = SDL_GetTicks();
 			loadScreenUpdate();
 		}
@@ -371,14 +371,22 @@ void SpaceInvaders::performShift()
 	shift_register.set(uint16_ShiftRegisterTemp);
 
 	//	Writing to port 2 (bits 0, 1, 2) sets the offset for the 8 bit result, eg.
+	
+	uint8_t uint8_Offset = (cpu->io->output.get(2) & 0x07);
+	uint8_t uint8_RegisterTemp = 0x00;
+
 	//	offset 0:
 	//rrrrrrrr		result = xxxxxxxx
 	//	xxxxxxxxyyyyyyyy
-	uint8_t uint8_Offset = cpu->io->output.get(2) & 0x07;
-	uint8_t uint8_RegisterTemp = 0x00;
-
 	if (uint8_Offset == 0x00) {
 		uint8_RegisterTemp = shift_register.get() >> 0x08;
+	}
+
+	//	offset 1:
+	//rrrrrrrr		result = xxxxxxxy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x01) {
+		uint8_RegisterTemp = shift_register.get() >> 0x07;
 	}
 
 	//	offset 2 :
@@ -388,11 +396,46 @@ void SpaceInvaders::performShift()
 		uint8_RegisterTemp = shift_register.get() >> 0x06;
 	}
 
+	//	offset 3:
+	//rrrrrrrr		result = xxxxxyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x03) {
+		uint8_RegisterTemp = shift_register.get() >> 0x05;
+	}
+
+	//	offset 4:
+	//rrrrrrrr		result = xxxxyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x04) {
+		uint8_RegisterTemp = shift_register.get() >> 0x04;
+	}
+
+	//	offset 5:
+	//rrrrrrrr		result = xxxyyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x05) {
+		uint8_RegisterTemp = shift_register.get() >> 0x03;
+	}
+
+	//	offset 6:
+	//rrrrrrrr		result = xxyyyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x06) {
+		uint8_RegisterTemp = shift_register.get() >> 0x02;
+	}
+
 	//	offset 7 :
 	//	rrrrrrrr	result = xyyyyyyy
 	//	xxxxxxxxyyyyyyyy
 	if (uint8_Offset == 0x07) {
 		uint8_RegisterTemp = shift_register.get() >> 0x01;
+	}
+
+	//	offset 8 :
+	//	rrrrrrrr	result = yyyyyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x08) {
+		uint8_RegisterTemp = shift_register.get() >> 0x00;
 	}
 
 	cpu->io->input.set(3, uint8_RegisterTemp);
