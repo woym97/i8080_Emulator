@@ -219,9 +219,7 @@ void SpaceInvaders::mainLoop()
 		goal_clock_cycles = cpu->clock->getCyclesToRun() + cpu->clock->getCurrentCCs();
 		// execute opcodes until the desired number of ccs has been reached
 		while (cpu->clock->getCurrentCCs() < goal_clock_cycles) {
-			// step the cpu to the next cycle
-			cpu->step();
-
+			
 			// check for interrupt condition
 			// 2 clock cycles per micro second 
 			// 1/60 second = 16666 micro seconds
@@ -231,6 +229,12 @@ void SpaceInvaders::mainLoop()
 				next_interrupt_to_send = next_interrupt_to_send == 1 ? 2 : 1;
 				next_interrupt_cc += interrupt_interval;
 			}
+			
+		
+			// step the cpu to the next cycle
+			cpu->step();
+
+			
 
 			// DEBUG
 			writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), 0,
@@ -355,7 +359,7 @@ void SpaceInvaders::performShift()
 	//	write $aa->$aa00,
 	//	write $ff->$ffaa,
 	//	write $12->$12ff, ..
-	//printf("PreShiftRegister: %4X\n", i8080.state.get_ShiftRegister());
+	printf("PreShiftRegister: %4X\n", shift_register.get());
 	uint16_t uint16_InitialShiftRegister = shift_register.get();
 	uint16_t uint16_ShiftRegisterTemp = 0x0000;
 	uint8_t uint8_ShiftLow = 0x00;
@@ -369,12 +373,13 @@ void SpaceInvaders::performShift()
 	uint16_ShiftRegisterTemp = uint16_ShiftRegisterTemp | uint8_ShiftHigh;
 		
 	shift_register.set(uint16_ShiftRegisterTemp);
+	printf("PostShiftRegister: %4X\n", shift_register.get());
 
 	//	Writing to port 2 (bits 0, 1, 2) sets the offset for the 8 bit result, eg.
 	
 	uint8_t uint8_Offset = (cpu->io->output.get(2) & 0x07);
 	uint8_t uint8_RegisterTemp = 0x00;
-
+	printf("Offset: %4X\n", uint8_Offset);
 	//	offset 0:
 	//rrrrrrrr		result = xxxxxxxx
 	//	xxxxxxxxyyyyyyyy
