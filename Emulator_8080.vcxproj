@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Emulator\Emulator.cpp" />
-    <ClCompile Include="Emulator\main.cpp" />
     <ClCompile Include="i8080\i8080.cpp" />
     <ClCompile Include="i8080\i8080_Clock.cpp" />
     <ClCompile Include="i8080\i8080_Flags.cpp" />
@@ -28,6 +27,7 @@
     <ClCompile Include="i8080\i8080_Memory.cpp" />
     <ClCompile Include="i8080\i8080_Opcodes.cpp" />
     <ClCompile Include="i8080\i8080_Registers.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="SpaceInvaders\SpaceInvaders.cpp" />
   </ItemGroup>
   <ItemGroup>
