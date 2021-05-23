@@ -8,6 +8,16 @@
 #include "SpaceInvaders.h"
 #include "../testWriter.h"
 
+Mix_Chunk* wav_ShotSoundEffect;
+Mix_Chunk* wav_ExplosionSoundEffect;
+Mix_Chunk* wav_FastInvader1SoundEffect;
+Mix_Chunk* wav_FastInvader2SoundEffect;
+Mix_Chunk* wav_FastInvader3SoundEffect;
+Mix_Chunk* wav_FastInvader4SoundEffect;
+Mix_Chunk* wav_InvaderKilledSoundEffect;
+Mix_Chunk* wav_UFOHighPitchSoundEffect;
+Mix_Chunk* wav_UFOLowPitchSoundEffect;
+
 /**
  * [DESCRIPTION] Get the input from SDL and convert it to a
  * 				 action recognized by the game
@@ -135,13 +145,13 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 			cpu->io->input.set(1, cpu->io->input.get(1) | 0x01);
 			break;
 		case SI_INPUT::P2_MOVE_LEFT:
-			cpu->io->input.set(1, cpu->io->input.get(2) | 0x20);
+			cpu->io->input.set(2, cpu->io->input.get(2) | 0x20);
 			break;
 		case SI_INPUT::P2_MOVE_RIGHT:
-			cpu->io->input.set(1, cpu->io->input.get(2) | 0x40);
+			cpu->io->input.set(2, cpu->io->input.get(2) | 0x40);
 			break;
 		case SI_INPUT::P2_FIRE:
-			cpu->io->input.set(1, cpu->io->input.get(2) | 0x10);
+			cpu->io->input.set(2, cpu->io->input.get(2) | 0x10);
 			break;
 		case SI_INPUT::P1_START:
 			cpu->io->input.set(1, cpu->io->input.get(1) | 0x04);
@@ -207,6 +217,23 @@ void SpaceInvaders::mainLoop()
 	uint64_t next_interrupt_cc = interrupt_interval;
 	int next_interrupt_to_send = 1;
 
+	// to setup the sound
+	wav_ShotSoundEffect = Mix_LoadWAV("shoot.wav");
+	wav_ExplosionSoundEffect = Mix_LoadWAV("explosion.wav");
+	wav_FastInvader1SoundEffect = Mix_LoadWAV("fastinvader1.wav");
+	wav_FastInvader2SoundEffect = Mix_LoadWAV("fastinvader2.wav");
+	wav_FastInvader3SoundEffect = Mix_LoadWAV("fastinvader3.wav");
+	wav_FastInvader4SoundEffect = Mix_LoadWAV("fastinvader4.wav");
+	wav_InvaderKilledSoundEffect = Mix_LoadWAV("invaderkilled.wav");
+	wav_UFOHighPitchSoundEffect = Mix_LoadWAV("ufo_highpitch.wav");
+	wav_UFOLowPitchSoundEffect = Mix_LoadWAV("ufo_lowpitch.wav");
+
+	// Set Sounds to off on startup
+	cpu->io->output.set(3, 0x00);
+	cpu->io->output.set(5, 0x00);
+
+	resetInputs();
+
 	while (!quit_flag) {
 		// reset the inputs
 		resetInputs();
@@ -219,15 +246,7 @@ void SpaceInvaders::mainLoop()
 		goal_clock_cycles = cpu->clock->getCyclesToRun() + cpu->clock->getCurrentCCs();
 		// execute opcodes until the desired number of ccs has been reached
 		while (cpu->clock->getCurrentCCs() < goal_clock_cycles) {
-			// step the cpu to the next cycle
-			cpu->step();
-
-			// check for shift condition
-			if ((cpu->memory->opCode_Array[0] == 0xD3) && 
-				(cpu->memory->opCode_Array[1] == 0x04)) {
-				performShift();
-			}
-
+			
 			// check for interrupt condition
 			// 2 clock cycles per micro second 
 			// 1/60 second = 16666 micro seconds
@@ -237,26 +256,56 @@ void SpaceInvaders::mainLoop()
 				next_interrupt_to_send = next_interrupt_to_send == 1 ? 2 : 1;
 				next_interrupt_cc += interrupt_interval;
 			}
+			
+		
+			// step the cpu to the next cycle
+			cpu->step();
+
+			
 
 			// DEBUG
-			writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), cpu->clock->getCurrentCCs(),
-				cpu->registers->PC.get(), cpu->registers->A.get(), cpu->registers->B.get(), cpu->registers->C.get(),
+			writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), 0,
+				cpu->registers->SP.get(), cpu->registers->A.get(), cpu->registers->B.get(), cpu->registers->C.get(),
 				cpu->registers->D.get(), cpu->registers->E.get(), cpu->registers->H.get(), cpu->registers->L.get(),
 				cpu->flags->Z.get(), cpu->flags->S.get(), cpu->flags->P.get(), cpu->flags->C.get(), cpu->flags->AC.get());
 
 			// execute the opcode
 			cpu->execute->runOpCode();
+			
+			
+
+			// check for shift condition
+			if ((cpu->memory->opCode_Array[0] == 0xD3) &&
+				(cpu->memory->opCode_Array[1] == 0x04)) {
+				performShift();
+			}
+
+			
 		}
 
 		// every 1/60 seconds update the screen and reset timer
 		if (SDL_GetTicks() - game_timer > (1000 / 60)) {
 			game_timer = SDL_GetTicks();
 			loadScreenUpdate();
+			updateSound();
+			cpu->clock->resetClockTimer();
 		}
+		
 
-		cpu->clock->resetClockTimer();
+		//cpu->clock->resetClockTimer();
 
 	}
+
+	Mix_FreeChunk(wav_ShotSoundEffect);
+	Mix_FreeChunk(wav_ExplosionSoundEffect);
+	Mix_FreeChunk(wav_FastInvader1SoundEffect);
+	Mix_FreeChunk(wav_FastInvader2SoundEffect);
+	Mix_FreeChunk(wav_FastInvader3SoundEffect);
+	Mix_FreeChunk(wav_FastInvader4SoundEffect);
+	Mix_FreeChunk(wav_InvaderKilledSoundEffect);
+	Mix_FreeChunk(wav_UFOHighPitchSoundEffect);
+	Mix_FreeChunk(wav_UFOLowPitchSoundEffect);
+	Mix_CloseAudio();
 }
 
 /**
@@ -355,7 +404,7 @@ void SpaceInvaders::performShift()
 	//	write $aa->$aa00,
 	//	write $ff->$ffaa,
 	//	write $12->$12ff, ..
-	//printf("PreShiftRegister: %4X\n", i8080.state.get_ShiftRegister());
+	//printf("PreShiftRegister: %4X\n", shift_register.get());
 	uint16_t uint16_InitialShiftRegister = shift_register.get();
 	uint16_t uint16_ShiftRegisterTemp = 0x0000;
 	uint8_t uint8_ShiftLow = 0x00;
@@ -369,16 +418,26 @@ void SpaceInvaders::performShift()
 	uint16_ShiftRegisterTemp = uint16_ShiftRegisterTemp | uint8_ShiftHigh;
 		
 	shift_register.set(uint16_ShiftRegisterTemp);
+	//printf("PostShiftRegister: %4X\n", shift_register.get());
 
 	//	Writing to port 2 (bits 0, 1, 2) sets the offset for the 8 bit result, eg.
+	
+	uint8_t uint8_Offset = (cpu->io->output.get(2) & 0x07);
+	uint8_t uint8_RegisterTemp = 0x00;
+	//printf("Offset: %4X\n", uint8_Offset);
+	// 
 	//	offset 0:
 	//rrrrrrrr		result = xxxxxxxx
 	//	xxxxxxxxyyyyyyyy
-	uint8_t uint8_Offset = cpu->io->output.get(2) & 0x07;
-	uint8_t uint8_RegisterTemp = 0x00;
-
 	if (uint8_Offset == 0x00) {
 		uint8_RegisterTemp = shift_register.get() >> 0x08;
+	}
+
+	//	offset 1:
+	//rrrrrrrr		result = xxxxxxxy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x01) {
+		uint8_RegisterTemp = shift_register.get() >> 0x07;
 	}
 
 	//	offset 2 :
@@ -388,6 +447,34 @@ void SpaceInvaders::performShift()
 		uint8_RegisterTemp = shift_register.get() >> 0x06;
 	}
 
+	//	offset 3:
+	//rrrrrrrr		result = xxxxxyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x03) {
+		uint8_RegisterTemp = shift_register.get() >> 0x05;
+	}
+
+	//	offset 4:
+	//rrrrrrrr		result = xxxxyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x04) {
+		uint8_RegisterTemp = shift_register.get() >> 0x04;
+	}
+
+	//	offset 5:
+	//rrrrrrrr		result = xxxyyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x05) {
+		uint8_RegisterTemp = shift_register.get() >> 0x03;
+	}
+
+	//	offset 6:
+	//rrrrrrrr		result = xxyyyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x06) {
+		uint8_RegisterTemp = shift_register.get() >> 0x02;
+	}
+
 	//	offset 7 :
 	//	rrrrrrrr	result = xyyyyyyy
 	//	xxxxxxxxyyyyyyyy
@@ -395,7 +482,88 @@ void SpaceInvaders::performShift()
 		uint8_RegisterTemp = shift_register.get() >> 0x01;
 	}
 
+	//	offset 8 :
+	//	rrrrrrrr	result = yyyyyyyy
+	//	xxxxxxxxyyyyyyyy
+	if (uint8_Offset == 0x08) {
+		uint8_RegisterTemp = shift_register.get() >> 0x00;
+	}
+
 	cpu->io->input.set(3, uint8_RegisterTemp);
+
+}
+
+/**
+* [DESCRIPTION] Function to update the Sound Effects of the game
+* Helpful links:	https://gigi.nullneuron.net/gigilabs/playing-a-wav-file-using-sdl2/
+*					https://soundprogramming.net/programming/tutorial-using-sdl2-and-sdl_mixer-to-play-samples/
+*/
+void SpaceInvaders::updateSound()
+{
+	uint8_t uint8_Output3Temp = cpu->io->output.get(3); // i8080.state.get_Outputs(3);
+	uint8_t uint8_Output5Temp = cpu->io->output.get(5); // i8080.state.get_Outputs(5);
+
+	//Port 3: (discrete sounds)
+	//bit 0 = UFO(repeats)        SX0 0.raw
+	if ((uint8_Output3Temp & 0x01) == 0x01) {
+		//func_PlayFastUFOHighSound();
+		//wav_UFO_HighPitch.play();
+		Mix_PlayChannel(-1, wav_UFOHighPitchSoundEffect, 0);
+	}
+
+	//bit 1 = Shot                 SX1 1.raw
+	if ((uint8_Output3Temp & 0x02) == 0x01) {
+		Mix_PlayChannel(-1, wav_ShotSoundEffect, 0);
+	}
+
+	//bit 2 = Flash(player die)   SX2 2.raw
+	if ((uint8_Output3Temp & 0x04) == 0x01) {
+		//func_PlayExplosionSound();
+		//wav_Explosion.play();
+		Mix_PlayChannel(-1, wav_ExplosionSoundEffect, 0);
+	}
+
+	//bit 3 = Invader die          SX3 3.raw
+	if ((uint8_Output3Temp & 0x08) == 0x01)
+	{
+		printf("Play Killed\n");
+		Mix_PlayChannel(-1, wav_InvaderKilledSoundEffect, 0);
+	}
+
+	//Port 5 :
+	//bit 0 = Fleet movement 1     SX6 4.raw
+	if ((uint8_Output5Temp & 0x01) == 0x01)
+	{
+		printf("Output5: %d\n", uint8_Output5Temp);
+
+		printf("Play Invader1\n");
+		Mix_PlayChannel(-1, wav_FastInvader1SoundEffect, 0);
+	}
+
+	//bit 1 = Fleet movement 2     SX7 5.raw
+	if ((uint8_Output5Temp & 0x02) == 0x01) {
+		
+		printf("Play Invader2\n");
+		Mix_PlayChannel(-1, wav_FastInvader2SoundEffect, 0);
+	}
+
+	//bit 2 = Fleet movement 3     SX8 6.raw
+	if ((uint8_Output5Temp & 0x04) == 0x01) {
+	
+		printf("Play Invader3\n");
+		Mix_PlayChannel(-1, wav_FastInvader3SoundEffect, 0);
+	}
+
+	//bit 3 = Fleet movement 4     SX9 7.raw
+	if ((uint8_Output5Temp & 0x08) == 0x01) {
+		
+		printf("Play Invader4\n");
+		Mix_PlayChannel(-1, wav_FastInvader4SoundEffect, 0);
+	}
+	//bit 4 = UFO Hit              SX10 8.raw
+
+	//cpu->io->output.set(3, 0x00); // (cpu->io->output.get(3) & 0x01));
+	//cpu->io->output.set(5, 0x00);
 
 }
 
