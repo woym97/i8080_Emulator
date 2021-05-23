@@ -37,7 +37,7 @@ enum class SI_INPUT {
 */
 class SpaceInvaders {
     private:
-        const int       EM_WIDTH  = 244;    // space invaders pixel width
+        const int       EM_WIDTH  = 224;    // space invaders pixel width
         const int       EM_HEIGHT = 256;    // space invaders pixel height
         const SDL_Rect  fillRect = { 165,181,
                         EM_WIDTH,EM_HEIGHT };// defines the area for the emulator on top of the bezel

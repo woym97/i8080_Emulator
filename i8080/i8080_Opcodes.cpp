@@ -45,6 +45,7 @@ void i8080::i8080_OpCodes::runOpCode()
     // Inc the PC tha default step of 1
     registers->inc_PC(1);
     //printf("%d\n", memory->opCode_Array[0]);
+    //printf("INPUT: %04x\n", io->input.get(1));
 
     switch(memory->opCode_Array[0]) {
         case 0x00: func_NOP();        break;

@@ -40,7 +40,6 @@ SI_INPUT SpaceInvaders::getInput(SDL_Event &evnt)
 			// User has opted to quit so set the quit flag
 			return_action = SI_INPUT::QUIT;
 			break;
-
 			// cases where player 1 starts
 		case SDLK_s:
 			return_action = SI_INPUT::P1_START;
@@ -122,10 +121,11 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 {
 	// event to handle 
 	SDL_Event evnt;
+	bool event_handled = false;
 
 	// look at the event queue and handle events on it until
 	// there are none left to handle (the queue is empty)
-	while (SDL_PollEvent(&evnt) != 0) {
+	while (SDL_PollEvent(&evnt) != 0 && !event_handled) {
 		// get the user action converted into an enum value 
 		switch (getInput(evnt)) {
 		case SI_INPUT::QUIT:
@@ -143,6 +143,7 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 			break;
 		case SI_INPUT::INSERT_COIN:
 			cpu->io->input.set(1, cpu->io->input.get(1) | 0x01);
+			printf("COIN INSERTED: %04x\n", cpu->io->input.get(1) | 0x01);
 			break;
 		case SI_INPUT::P2_MOVE_LEFT:
 			cpu->io->input.set(2, cpu->io->input.get(2) | 0x20);
@@ -218,35 +219,36 @@ void SpaceInvaders::mainLoop()
 	int next_interrupt_to_send = 1;
 
 	// to setup the sound
-	wav_ShotSoundEffect = Mix_LoadWAV("shoot.wav");
-	wav_ExplosionSoundEffect = Mix_LoadWAV("explosion.wav");
-	wav_FastInvader1SoundEffect = Mix_LoadWAV("fastinvader1.wav");
-	wav_FastInvader2SoundEffect = Mix_LoadWAV("fastinvader2.wav");
-	wav_FastInvader3SoundEffect = Mix_LoadWAV("fastinvader3.wav");
-	wav_FastInvader4SoundEffect = Mix_LoadWAV("fastinvader4.wav");
-	wav_InvaderKilledSoundEffect = Mix_LoadWAV("invaderkilled.wav");
-	wav_UFOHighPitchSoundEffect = Mix_LoadWAV("ufo_highpitch.wav");
-	wav_UFOLowPitchSoundEffect = Mix_LoadWAV("ufo_lowpitch.wav");
+	wav_ShotSoundEffect				= Mix_LoadWAV("SpaceInvaders/sound/shoot.wav");
+	wav_ExplosionSoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/explosion.wav");
+	wav_FastInvader1SoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/fastinvader1.wav");
+	wav_FastInvader2SoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/fastinvader2.wav");
+	wav_FastInvader3SoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/fastinvader3.wav");
+	wav_FastInvader4SoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/fastinvader4.wav");
+	wav_InvaderKilledSoundEffect	= Mix_LoadWAV("SpaceInvaders/sound/invaderkilled.wav");
+	wav_UFOHighPitchSoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/ufo_highpitch.wav");
+	wav_UFOLowPitchSoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/ufo_lowpitch.wav");
 
 	// Set Sounds to off on startup
 	cpu->io->output.set(3, 0x00);
 	cpu->io->output.set(5, 0x00);
 
 	resetInputs();
+	cpu->io->input.set(1, 0x08);
 
 	while (!quit_flag) {
-		// reset the inputs
-		resetInputs();
-
-		// handle the user input
-		handleUserInput(quit_flag);
-
+		// GET CLOCK =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 		// get the amount of clock cycles to run
 		clock_cycles_to_run = cpu->clock->getCyclesToRun();
 		goal_clock_cycles = cpu->clock->getCyclesToRun() + cpu->clock->getCurrentCCs();
+
+		// RUN CPU =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 		// execute opcodes until the desired number of ccs has been reached
 		while (cpu->clock->getCurrentCCs() < goal_clock_cycles) {
-			
+			// USER INPUT =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+			handleUserInput(quit_flag);
+
+			// INTERRUPT =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 			// check for interrupt condition
 			// 2 clock cycles per micro second 
 			// 1/60 second = 16666 micro seconds
@@ -257,42 +259,43 @@ void SpaceInvaders::mainLoop()
 				next_interrupt_cc += interrupt_interval;
 			}
 			
-		
+			// CPU STEP =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 			// step the cpu to the next cycle
 			cpu->step();
 
-			
-
 			// DEBUG
-			writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), 0,
-				cpu->registers->SP.get(), cpu->registers->A.get(), cpu->registers->B.get(), cpu->registers->C.get(),
-				cpu->registers->D.get(), cpu->registers->E.get(), cpu->registers->H.get(), cpu->registers->L.get(),
-				cpu->flags->Z.get(), cpu->flags->S.get(), cpu->flags->P.get(), cpu->flags->C.get(), cpu->flags->AC.get());
+			//writeOpcode(cpu->memory->opCode_Array[0], cpu->registers->PC.get(), 0,
+			//	cpu->registers->SP.get(), cpu->registers->A.get(), cpu->registers->B.get(), cpu->registers->C.get(),
+			//	cpu->registers->D.get(), cpu->registers->E.get(), cpu->registers->H.get(), cpu->registers->L.get(),
+			//	cpu->flags->Z.get(), cpu->flags->S.get(), cpu->flags->P.get(), cpu->flags->C.get(), cpu->flags->AC.get());
 
+			// EXE CPU =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 			// execute the opcode
 			cpu->execute->runOpCode();
-			
-			
 
+			// RESET INPUTS =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-
+			if (cpu->memory->opCode_Array[0] == 0xdb) {
+				resetInputs();
+			}
+
+			// SHIFT CHECK =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=
 			// check for shift condition
 			if ((cpu->memory->opCode_Array[0] == 0xD3) &&
 				(cpu->memory->opCode_Array[1] == 0x04)) {
 				performShift();
 			}
 
-			
+			// SCREEN UPDATE =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=
+			if (SDL_GetTicks() - game_timer > (1000 / 60)) {
+				game_timer = SDL_GetTicks();
+				loadScreenUpdate();
+				//updateSound();
+			}
+
 		}
 
-		// every 1/60 seconds update the screen and reset timer
-		if (SDL_GetTicks() - game_timer > (1000 / 60)) {
-			game_timer = SDL_GetTicks();
-			loadScreenUpdate();
-			updateSound();
-			cpu->clock->resetClockTimer();
-		}
-		
-
-		//cpu->clock->resetClockTimer();
+		// RESET CLOCK =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+		cpu->clock->resetClockTimer();
 
 	}
 
@@ -348,45 +351,21 @@ void SpaceInvaders::prepareVRAM()
  * 
 */
 void SpaceInvaders::resetInputs()
-{
-	// Initializing Inputs
-	// https://computerarcheology.com/Arcade/SpaceInvaders/Hardware.html
-	// Port 0
-	//		bit 0 DIP4(Seems to be self - test - request read at power up)
-	//		bit 1 Always 1
-	//		bit 2 Always 1
-	//		bit 3 Always 1
-	//		bit 4 Fire
-	//		bit 5 Left
-	//		bit 6 Right
-	//		bit 7 ? tied to demux port 7 ?
+{	
+
+	uint8_t port = cpu->memory->opCode_Array[1];
+
+	// handle coin input
+	if (port == 1 &&
+		cpu->io->input.get(1) == 9) {
+		printf("RESETTING COIN\n");
+		cpu->io->input.set(1, 0x08);
+	}
+
 	cpu->io->input.set(0, 0x0E);
 
-	// Port 1
-	//		bit 0 = CREDIT(1 if deposit)
-	//		bit 1 = 2P start(1 if pressed)
-	//		bit 2 = 1P start(1 if pressed)
-	//		bit 3 = Always 1
-	//		bit 4 = 1P shot(1 if pressed)
-	//		bit 5 = 1P left(1 if pressed)
-	//		bit 6 = 1P right(1 if pressed)
-	//		bit 7 = Not connected
-	cpu->io->input.set(1, 0x08);
-
-	// Port 2
-	//		bit 0 = DIP3 00 = 3 ships  10 = 5 ships
-	//		bit 1 = DIP5 01 = 4 ships  11 = 6 ships
-	//		bit 2 = Tilt
-	//		bit 3 = DIP6 0 = extra ship at 1500, 1 = extra ship at 1000
-	//		bit 4 = P2 shot(1 if pressed)
-	//		bit 5 = P2 left(1 if pressed)
-	//		bit 6 = P2 right(1 if pressed)
-	//		bit 7 = DIP7 Coin info displayed in demo screen 0 = ON
 	cpu->io->input.set(2, 0x0B);
 
-	//Port 3
-	//		bit 0 - 7 Shift register data
-	//i8080.state.inputs[3] = 0x00;
 }
 
 /**
@@ -526,7 +505,7 @@ void SpaceInvaders::updateSound()
 	//bit 3 = Invader die          SX3 3.raw
 	if ((uint8_Output3Temp & 0x08) == 0x01)
 	{
-		printf("Play Killed\n");
+		//printf("Play Killed\n");
 		Mix_PlayChannel(-1, wav_InvaderKilledSoundEffect, 0);
 	}
 
@@ -534,30 +513,30 @@ void SpaceInvaders::updateSound()
 	//bit 0 = Fleet movement 1     SX6 4.raw
 	if ((uint8_Output5Temp & 0x01) == 0x01)
 	{
-		printf("Output5: %d\n", uint8_Output5Temp);
+		//printf("Output5: %d\n", uint8_Output5Temp);
 
-		printf("Play Invader1\n");
+		//printf("Play Invader1\n");
 		Mix_PlayChannel(-1, wav_FastInvader1SoundEffect, 0);
 	}
 
 	//bit 1 = Fleet movement 2     SX7 5.raw
 	if ((uint8_Output5Temp & 0x02) == 0x01) {
 		
-		printf("Play Invader2\n");
+		//printf("Play Invader2\n");
 		Mix_PlayChannel(-1, wav_FastInvader2SoundEffect, 0);
 	}
 
 	//bit 2 = Fleet movement 3     SX8 6.raw
 	if ((uint8_Output5Temp & 0x04) == 0x01) {
 	
-		printf("Play Invader3\n");
+		//printf("Play Invader3\n");
 		Mix_PlayChannel(-1, wav_FastInvader3SoundEffect, 0);
 	}
 
 	//bit 3 = Fleet movement 4     SX9 7.raw
 	if ((uint8_Output5Temp & 0x08) == 0x01) {
 		
-		printf("Play Invader4\n");
+		//printf("Play Invader4\n");
 		Mix_PlayChannel(-1, wav_FastInvader4SoundEffect, 0);
 	}
 	//bit 4 = UFO Hit              SX10 8.raw
