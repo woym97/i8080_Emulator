@@ -4640,7 +4640,8 @@ void i8080::i8080_OpCodes::func_OUT_D8() {
     //if ((memory->opCode_Array[1] == 0x02) && (registers->A.get() != 0x00)) {
         //printf("Setting Offset\n");
     //}
-    io->output.set(memory->opCode_Array[1], registers->A.get());
+    io->output.get_port(memory->opCode_Array[1])->port_val.byte_val = registers->A.get();
+    //io->output.set(memory->opCode_Array[1], registers->A.get());
     //system("pause");
 
     clock->incClockCycles(10);
@@ -4828,9 +4829,10 @@ void i8080::i8080_OpCodes::func_IN_D8() {
     registers->inc_PC(1);
     // @TODO [Madison]: fill in logic
 
-    uint8_t uint8_RegisterTemp = io->input.get(memory->opCode_Array[1]);
+    //uint8_t uint8_RegisterTemp = io->input.get(memory->opCode_Array[1]);
 
-    registers->A.set(uint8_RegisterTemp);
+    registers->A.set(io->input.get_port(memory->opCode_Array[1])->port_val.byte_val);
+    //registers->A.set(uint8_RegisterTemp);
 
     clock->incClockCycles(10);
 
