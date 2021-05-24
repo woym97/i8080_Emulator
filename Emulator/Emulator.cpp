@@ -69,7 +69,7 @@ bool Emulator::initSDL()
 		}
 
 		// Amount of channels (Max amount of sounds playing at the same time)
-		Mix_AllocateChannels(8);
+		Mix_AllocateChannels(2);
 	}
 	return load_success;
 }

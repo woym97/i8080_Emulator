@@ -206,8 +206,9 @@ void SpaceInvaders::mainLoop()
 			if (SDL_GetTicks() - game_timer > (1000 / 60)) {
 				game_timer = SDL_GetTicks();
 				loadScreenUpdate();
-				//updateSound();
 			}
+
+			updateSound();
 
 		}
 
@@ -364,70 +365,63 @@ void SpaceInvaders::performShift()
 */
 void SpaceInvaders::updateSound()
 {
-	//uint8_t uint8_Output3Temp = cpu->io->output.get(3); // i8080.state.get_Outputs(3);
+	//uint8_t uint8_Output3Temp = cpu->io->output.get_port(3)->port_val.bit_struct.b0; // i8080.state.get_Outputs(3);
 	//uint8_t uint8_Output5Temp = cpu->io->output.get(5); // i8080.state.get_Outputs(5);
 
 	//Port 3: (discrete sounds)
 	//bit 0 = UFO(repeats)        SX0 0.raw
-	//if ((uint8_Output3Temp & 0x01) == 0x01) {
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b0) == true) {
 	//	//func_PlayFastUFOHighSound();
 	//	//wav_UFO_HighPitch.play();
-	//	Mix_PlayChannel(-1, wav_UFOHighPitchSoundEffect, 0);
-	//}
+		Mix_PlayChannel(-1, wav_UFOHighPitchSoundEffect, 0);
+	}
 
 	////bit 1 = Shot                 SX1 1.raw
-	//if ((uint8_Output3Temp & 0x02) == 0x01) {
-	//	Mix_PlayChannel(-1, wav_ShotSoundEffect, 0);
-	//}
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b1) == true) {
+		Mix_PlayChannel(-1, wav_ShotSoundEffect, 0);
+	}
 
 	////bit 2 = Flash(player die)   SX2 2.raw
-	//if ((uint8_Output3Temp & 0x04) == 0x01) {
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b2) == true) {
 	//	//func_PlayExplosionSound();
 	//	//wav_Explosion.play();
-	//	Mix_PlayChannel(-1, wav_ExplosionSoundEffect, 0);
-	//}
+		Mix_PlayChannel(-1, wav_ExplosionSoundEffect, 0);
+	}
 
 	////bit 3 = Invader die          SX3 3.raw
-	//if ((uint8_Output3Temp & 0x08) == 0x01)
-	//{
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b3) == true)
+	{
 	//	//printf("Play Killed\n");
-	//	Mix_PlayChannel(-1, wav_InvaderKilledSoundEffect, 0);
-	//}
+		Mix_PlayChannel(-1, wav_InvaderKilledSoundEffect, 0);
+	}
 
 	////Port 5 :
 	////bit 0 = Fleet movement 1     SX6 4.raw
-	//if ((uint8_Output5Temp & 0x01) == 0x01)
-	//{
-	//	//printf("Output5: %d\n", uint8_Output5Temp);
-
-	//	//printf("Play Invader1\n");
-	//	Mix_PlayChannel(-1, wav_FastInvader1SoundEffect, 0);
-	//}
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b0) == true)
+	{
+		Mix_PlayChannel(-1, wav_FastInvader1SoundEffect, 0);
+	}
 
 	////bit 1 = Fleet movement 2     SX7 5.raw
-	//if ((uint8_Output5Temp & 0x02) == 0x01) {
-	//	
-	//	//printf("Play Invader2\n");
-	//	Mix_PlayChannel(-1, wav_FastInvader2SoundEffect, 0);
-	//}
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b1) == true) 
+	{
+		Mix_PlayChannel(-1, wav_FastInvader2SoundEffect, 0);
+	}
 
 	////bit 2 = Fleet movement 3     SX8 6.raw
-	//if ((uint8_Output5Temp & 0x04) == 0x01) {
-	//
-	//	//printf("Play Invader3\n");
-	//	Mix_PlayChannel(-1, wav_FastInvader3SoundEffect, 0);
-	//}
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b2) == true)
+	{
+	
+		Mix_PlayChannel(-1, wav_FastInvader3SoundEffect, 0);
+	}
 
 	////bit 3 = Fleet movement 4     SX9 7.raw
-	//if ((uint8_Output5Temp & 0x08) == 0x01) {
-	//	
-	//	//printf("Play Invader4\n");
-	//	Mix_PlayChannel(-1, wav_FastInvader4SoundEffect, 0);
-	//}
-	////bit 4 = UFO Hit              SX10 8.raw
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b3) == true)
+	{
+		Mix_PlayChannel(-1, wav_FastInvader4SoundEffect, 0);
+	}
 
-	////cpu->io->output.set(3, 0x00); // (cpu->io->output.get(3) & 0x01));
-	////cpu->io->output.set(5, 0x00);
+	////bit 4 = UFO Hit              SX10 8.raw
 
 }
 
