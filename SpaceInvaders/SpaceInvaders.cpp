@@ -20,7 +20,8 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 
 	// look at the event queue and handle events on it until
 	// there are none left to handle (the queue is empty)
-	while (SDL_PollEvent(&evnt) != 0 && !event_handled) {
+	while (SDL_PollEvent(&evnt) != 0 ) {
+	//while (SDL_PollEvent(&evnt) != 0 && !event_handled) {
 		// HANDLE MOUSE CLICKS =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 		if (evnt.type == SDL_QUIT) {
 			quit_flag = true;
@@ -51,6 +52,7 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 			case SDLK_w:
 				act_fire->start();
 				event_handled = true;
+				break;
 			case SDLK_c:
 				act_coin->start();
 				event_handled = true;
@@ -161,11 +163,12 @@ void SpaceInvaders::mainLoop()
 		clock_cycles_to_run = cpu->clock->getCyclesToRun();
 		goal_clock_cycles = cpu->clock->getCyclesToRun() + cpu->clock->getCurrentCCs();
 
+		// USER INPUT =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+		handleUserInput(quit_flag);
+
 		// RUN CPU =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 		// execute opcodes until the desired number of ccs has been reached
 		while (cpu->clock->getCurrentCCs() < goal_clock_cycles) {
-			// USER INPUT =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-			handleUserInput(quit_flag);
 
 			// INTERRUPT =-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 			// check for interrupt condition
@@ -466,15 +469,6 @@ void SpaceInvaders::runGame()
 	wav_InvaderKilledSoundEffect	= Mix_LoadWAV("SpaceInvaders/sound/invaderkilled.wav");
 	wav_UFOHighPitchSoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/ufo_highpitch.wav");
 	wav_UFOLowPitchSoundEffect		= Mix_LoadWAV("SpaceInvaders/sound/ufo_lowpitch.wav");
-
-	// Set up IO
-	cpu->io->input.get_port(0)->set_bit(1);
-	cpu->io->input.get_port(0)->set_bit(2);
-	cpu->io->input.get_port(0)->set_bit(3);
-	cpu->io->input.get_port(2)->set_bit(1);
-	cpu->io->input.get_port(2)->set_bit(2);
-	cpu->io->input.get_port(2)->set_bit(3);
-	cpu->io->input.get_port(1)->set_bit(3);
 
 	// enter the main game loop
 	mainLoop();
