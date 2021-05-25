@@ -88,6 +88,7 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 			case SDLK_w:
 				act_fire->stop();
 				event_handled = true;
+				break;
 			case SDLK_c:
 				act_coin->stop();
 				event_handled = true;
@@ -208,7 +209,7 @@ void SpaceInvaders::mainLoop()
 				loadScreenUpdate();
 			}
 
-			updateSound();
+			//updateSound();
 
 		}
 
@@ -364,16 +365,19 @@ void SpaceInvaders::performShift()
 *					https://soundprogramming.net/programming/tutorial-using-sdl2-and-sdl_mixer-to-play-samples/
 */
 void SpaceInvaders::updateSound()
-{
+{	
+	static bool sound1 = false;
 	//uint8_t uint8_Output3Temp = cpu->io->output.get_port(3)->port_val.bit_struct.b0; // i8080.state.get_Outputs(3);
 	//uint8_t uint8_Output5Temp = cpu->io->output.get(5); // i8080.state.get_Outputs(5);
 
 	//Port 3: (discrete sounds)
 	//bit 0 = UFO(repeats)        SX0 0.raw
-	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b0) == true) {
-	//	//func_PlayFastUFOHighSound();
-	//	//wav_UFO_HighPitch.play();
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b0) == true && !sound1) {
 		Mix_PlayChannel(-1, wav_UFOHighPitchSoundEffect, 0);
+		sound1 = true;
+	}
+	else if ((cpu->io->output.get_port(3)->port_val.bit_struct.b0) == false) {
+		sound1 = false;
 	}
 
 	////bit 1 = Shot                 SX1 1.raw
