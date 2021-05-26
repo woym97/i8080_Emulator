@@ -209,7 +209,7 @@ void SpaceInvaders::mainLoop()
 				loadScreenUpdate();
 			}
 
-			//updateSound();
+			updateSound();
 
 		}
 
@@ -366,63 +366,88 @@ void SpaceInvaders::performShift()
 */
 void SpaceInvaders::updateSound()
 {	
-	static bool sound1 = false;
-	//uint8_t uint8_Output3Temp = cpu->io->output.get_port(3)->port_val.bit_struct.b0; // i8080.state.get_Outputs(3);
-	//uint8_t uint8_Output5Temp = cpu->io->output.get(5); // i8080.state.get_Outputs(5);
+	//static bool soundUFO = false;
+	static bool soundShot = false;
+	static bool soundExplosion = false;
+	static bool soundInvaderKilled = false;
+	static bool soundInvader1 = false;
+	static bool soundInvader2 = false;
+	static bool soundInvader3 = false;
+	static bool soundInvader4 = false;
 
 	//Port 3: (discrete sounds)
 	//bit 0 = UFO(repeats)        SX0 0.raw
-	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b0) == true && !sound1) {
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b0) == true) {
 		Mix_PlayChannel(-1, wav_UFOHighPitchSoundEffect, 0);
-		sound1 = true;
-	}
-	else if ((cpu->io->output.get_port(3)->port_val.bit_struct.b0) == false) {
-		sound1 = false;
 	}
 
 	////bit 1 = Shot                 SX1 1.raw
-	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b1) == true) {
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b1) == true && !soundShot) {
 		Mix_PlayChannel(-1, wav_ShotSoundEffect, 0);
+		soundShot = true;
+	}
+	else if ((cpu->io->output.get_port(3)->port_val.bit_struct.b1) == false) {
+		soundShot = false;
 	}
 
 	////bit 2 = Flash(player die)   SX2 2.raw
-	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b2) == true) {
-	//	//func_PlayExplosionSound();
-	//	//wav_Explosion.play();
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b2) == true && !soundExplosion) {
 		Mix_PlayChannel(-1, wav_ExplosionSoundEffect, 0);
+		soundExplosion = true;
+	}
+	else if ((cpu->io->output.get_port(3)->port_val.bit_struct.b2) == false) {
+		soundExplosion = false;
 	}
 
 	////bit 3 = Invader die          SX3 3.raw
-	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b3) == true)
+	if ((cpu->io->output.get_port(3)->port_val.bit_struct.b3) == true && !soundInvaderKilled)
 	{
-	//	//printf("Play Killed\n");
 		Mix_PlayChannel(-1, wav_InvaderKilledSoundEffect, 0);
+		soundInvaderKilled = true;
+	}
+	else if ((cpu->io->output.get_port(3)->port_val.bit_struct.b3) == false) {
+		soundInvaderKilled = false;
 	}
 
 	////Port 5 :
 	////bit 0 = Fleet movement 1     SX6 4.raw
-	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b0) == true)
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b0) == true && !soundInvader1)
 	{
 		Mix_PlayChannel(-1, wav_FastInvader1SoundEffect, 0);
+		soundInvader1 = true;
+	}
+	else if ((cpu->io->output.get_port(5)->port_val.bit_struct.b0) == false) {
+		soundInvader1 = false;
 	}
 
 	////bit 1 = Fleet movement 2     SX7 5.raw
-	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b1) == true) 
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b1) == true && !soundInvader2) 
 	{
 		Mix_PlayChannel(-1, wav_FastInvader2SoundEffect, 0);
+		soundInvader2 = true;
+	}
+	else if ((cpu->io->output.get_port(5)->port_val.bit_struct.b1) == false) {
+		soundInvader2 = false;
 	}
 
 	////bit 2 = Fleet movement 3     SX8 6.raw
-	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b2) == true)
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b2) == true && !soundInvader3)
 	{
-	
 		Mix_PlayChannel(-1, wav_FastInvader3SoundEffect, 0);
+		soundInvader3 = true;
+	}
+	else if ((cpu->io->output.get_port(5)->port_val.bit_struct.b2) == false) {
+		soundInvader3 = false;
 	}
 
 	////bit 3 = Fleet movement 4     SX9 7.raw
-	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b3) == true)
+	if ((cpu->io->output.get_port(5)->port_val.bit_struct.b3) == true && !soundInvader4)
 	{
 		Mix_PlayChannel(-1, wav_FastInvader4SoundEffect, 0);
+		soundInvader4 = true;
+	}
+	else if ((cpu->io->output.get_port(5)->port_val.bit_struct.b3) == false) {
+		soundInvader4 = false;
 	}
 
 	////bit 4 = UFO Hit              SX10 8.raw

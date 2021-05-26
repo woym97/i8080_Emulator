@@ -1450,6 +1450,8 @@ void i8080::i8080_OpCodes::func_DAA() {
         // Checks Auxiliary Carry of the increment
         bool_Result1 = flags->check_AC(uint8_InitialA, 0x06);
 
+        registers->A.set(uint8_ResultTemp1);
+
     }
 
     //(2) If the most significant four bits of the accumulator
@@ -1461,6 +1463,8 @@ void i8080::i8080_OpCodes::func_DAA() {
 
         // Checks the Carry of the increment
         bool_Result2 = flags->check_C(uint8_ResultTemp1, 0x60);
+
+        registers->A.set(uint8_ResultTemp2);
     }
 
     // Sets or resets the Auxiliary Carry Flag
@@ -1469,6 +1473,9 @@ void i8080::i8080_OpCodes::func_DAA() {
     if (bool_Result2 == true) {
         flags->C.set(true);
     }
+
+    // Check Flags
+    flags->set_S_Z_P();
 
     clock->incClockCycles(4);
 
