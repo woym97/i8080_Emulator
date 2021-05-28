@@ -53,12 +53,21 @@ bool Emulator::initSDL()
 			printf("No Joysticks connected \n");
 		}
 		else {
-			gameController = SDL_JoystickOpen(0);
-			if (gameController == NULL) {
+			gameController_1 = SDL_JoystickOpen(0);
+			if (gameController_1 == NULL) {
 				printf("ERROR: Unable to load joystick");
 			}
 			else {
-				printf("Joystick connected\n");
+				printf("Joystick 1 connected\n");
+			}
+			if (SDL_NumJoysticks() > 1) {
+				gameController_2 = SDL_JoystickOpen(1);
+				if (gameController_2 == NULL) {
+					printf("ERROR: Unable to load joystick");
+				}
+				else {
+					printf("Joystick 2 connected\n");
+				}
 			}
 		}
 
@@ -191,8 +200,12 @@ void Emulator::closeGameWindow()
 	gameWindow = NULL;
 
 	// close the joystick
-	SDL_JoystickClose(gameController);
-	gameController = NULL;
+	SDL_JoystickClose(gameController_1);
+	gameController_1 = NULL;
+
+		// close the joystick
+	SDL_JoystickClose(gameController_2);
+	gameController_2 = NULL;
 
 	// destroy the renderer
 	SDL_DestroyRenderer(gwRenderer);
@@ -228,6 +241,6 @@ Emulator::~Emulator()
 void Emulator::runSpaceInvaders()
 {
 	SpaceInvaders* game;
-	game = new SpaceInvaders(gwRenderer);
+	game = new SpaceInvaders(gwRenderer, gameController_1, gameController_2);
 	game->runGame();
 }

@@ -17,6 +17,7 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 	// event to handle 
 	SDL_Event evnt;
 	bool event_handled = false;
+	static bool joystick_motion = false;
 
 	// look at the event queue and handle events on it until
 	// there are none left to handle (the queue is empty)
@@ -131,10 +132,147 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 		}
 
 		// HANDLE CONTROLLER BUTTONS =-=-=-=-=-=-=-=-=-=-=-=-
+		else if (evnt.type == SDL_JOYBUTTONDOWN) {
+			if (evnt.jdevice.which == 0) {
+				switch (evnt.jbutton.button) {
+					// A button
+				case 0:
+					act_fire_p1->start();
+					break;
+					// B button
+				case 1:
+					act_start_p1->start();
+					break;
+					// R middle button
+				case 6:
+					quit_flag = true;
+					event_handled = true;
+					break;
+					// L middle button
+				case 7:
+					act_coin->start();
+					break;
+				}
+			}
+			else if (evnt.jdevice.which == 1) {
+				switch (evnt.jbutton.button) {
+					// A button
+				case 0:
+					act_fire_p2->start();
+					break;
+					// B button
+				case 1:
+					act_start_p2->start();
+					break;
+					// R middle button
+				case 6:
+					quit_flag = true;
+					event_handled = true;
+					break;
+					// L middle button
+				case 7:
+					act_coin->start();
+					break;
+				}
+			}
+		}
+		else if (evnt.type == SDL_JOYBUTTONUP) {
+			if (evnt.jdevice.which == 0) {
+				switch (evnt.jbutton.button) {
+					// A button
+				case 0:
+					act_fire_p1->stop();
+					break;
+					// B button
+				case 1:
+					act_start_p1->stop();
+					break;
+					// R middle button
+				case 6:
+					quit_flag = true;
+					event_handled = true;
+					break;
+					// L middle button
+				case 7:
+					act_coin->stop();
+					break;
+				}
+			}
+			else if (evnt.jdevice.which == 1) {
+				switch (evnt.jbutton.button) {
+					// A button
+				case 0:
+					act_fire_p2->stop();
+					break;
+					// B button
+				case 1:
+					act_start_p2->stop();
+					break;
+					// R middle button
+				case 6:
+					quit_flag = true;
+					event_handled = true;
+					break;
+					// L middle button
+				case 7:
+					act_coin->stop();
+					break;
+				}
+			}
+		}
 
 		// HANDLE JOYSTICK MOVEMENTS =-=-=-=-=-=-=-=-=-=-=-=-
+		else if (evnt.type == SDL_JOYAXISMOTION) {
+			// look for motion on the controller 0
+			if (evnt.jaxis.which == 0) {
+				// look for x axis motion left
+				if (evnt.jaxis.value < -8000) {
+					act_left_p1->start();
+					event_handled = true;
+					joystick_motion = true;
+				}
+				// look for y axis motion right
+				else if (evnt.jaxis.value > 8000) {
+					act_right_p1->start();
+					event_handled = true;
+					joystick_motion = true;
+				}
+			}
+			// look for motion on the controller 1
+			else if (evnt.jaxis.which == 1) {
+				// look for x axis motion left
+				if (evnt.jaxis.value < -8000) {
+					act_left_p2->start();
+					event_handled = true;
+					joystick_motion = true;
+				}
+				// look for y axis motion right
+				else if (evnt.jaxis.value > 8000) {
+					act_right_p2->start();
+					event_handled = true;
+					joystick_motion = true;
+				}
+			}
+		}
 
 	}
+
+	// see if its time to stop a joystick movement
+	if (gc_1 != NULL && joystick_motion) {
+		if (std::abs(SDL_JoystickGetAxis(gc_1, 0)) < 8000) {
+			act_right_p1->stop();
+			act_left_p1->stop();
+			joystick_motion = false;
+		}
+	}
+	if (gc_2 != NULL && joystick_motion) {
+		if (std::abs(SDL_JoystickGetAxis(gc_2, 0)) < 8000) {
+			act_right_p2->stop();
+			act_left_p2->stop();
+			joystick_motion = false;
+		}
+	}
+	
 }
 
 /**
@@ -548,13 +686,15 @@ void SpaceInvaders::runGame()
  * [DESCRIPTION] Construct a new Space Invaders:: Space Invaders object
  * 
 */
-SpaceInvaders::SpaceInvaders(SDL_Renderer* renderer)
+SpaceInvaders::SpaceInvaders(SDL_Renderer* renderer, SDL_Joystick* gameController_1, SDL_Joystick* gameController_2)
 {
 	cpu = new i8080;
 	gwRenderer = renderer;
 	video_RAM = (unsigned int*)malloc(224 * 256 * 4);
 	memset(video_RAM, 1, 224 * 256 * 4);
 	mapActions();
+	gc_1 = gameController_1;
+	gc_2 = gameController_2;
 }
 
 /**

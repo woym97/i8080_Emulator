@@ -36,7 +36,8 @@ class Emulator {
         void closeGameWindow();					    // shut down procedure for the game
     public:
         /* =-=-=-= SDL MEMBERS =-=-=-= */
-        SDL_Joystick*   gameController = NULL;      // variable to hold handle to joystick
+        SDL_Joystick*   gameController_1 = NULL;    // variable to hold handle to joystick1
+        SDL_Joystick*   gameController_2 = NULL;    // variable to hold handle to joystick2
         SDL_Window*     gameWindow = NULL;			// main window for game
         SDL_Renderer*   gwRenderer = NULL;		    // main renderer
 
