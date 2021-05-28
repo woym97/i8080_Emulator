@@ -136,10 +136,10 @@ bool i8080::i8080_Flags::check_AC(uint8_t src1, uint8_t src2)
 			boolResult = true;
 		}
 		else {
-			boolResult = 0;
+			boolResult = false;
 		};
 		
-		uint8_Carry = uint8_ResultTemp;
+		uint8_Carry = (uint8_ResultTemp & 0x02);
 		 
 		
 	};

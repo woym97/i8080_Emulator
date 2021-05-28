@@ -38,7 +38,7 @@ int i8080::i8080_Clock::getCyclesToRun()
 */
 void i8080::i8080_Clock::i8080_Clock::incClockCycles(int cyc)
 {
-	cycles += cyc;
+    cycles += cyc;
 }
 
 /**
@@ -46,7 +46,6 @@ void i8080::i8080_Clock::i8080_Clock::incClockCycles(int cyc)
  * 
 */
 i8080::i8080_Clock::i8080_Clock() {
-    printf("CLOCK();\n");
 	timer 	= 0;
 	cycles 	= 0;
 }

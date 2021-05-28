@@ -45,6 +45,7 @@ void i8080::i8080_OpCodes::runOpCode()
     // Inc the PC tha default step of 1
     registers->inc_PC(1);
     //printf("%d\n", memory->opCode_Array[0]);
+    //printf("INPUT: %04x\n", io->input.get(1));
 
     switch(memory->opCode_Array[0]) {
         case 0x00: func_NOP();        break;
@@ -376,7 +377,7 @@ void i8080::i8080_OpCodes::func_INR_Registers(i8080_Registers::Register_8Bit& re
 /**
  * [DESCRIPTION] Generic Decrement Function to pass the DCR OpCodes to
  * 
- * [PARAM] reg_Source 
+ * [PARAM] reg_Source IN
 */
 void i8080::i8080_OpCodes::func_DCR_Registers(i8080_Registers::Register_8Bit& reg_Source)
 {
@@ -393,7 +394,8 @@ void i8080::i8080_OpCodes::func_DCR_Registers(i8080_Registers::Register_8Bit& re
     flags->set_P(uint8_ResultTemp);
     
 	// When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
-	flags->AC.set(false);	
+    flags->set_AC(uint8_RegisterTemp, 0xFF);
+	//flags->AC.set(false);	
 };
 
 /**
@@ -1448,6 +1450,8 @@ void i8080::i8080_OpCodes::func_DAA() {
         // Checks Auxiliary Carry of the increment
         bool_Result1 = flags->check_AC(uint8_InitialA, 0x06);
 
+        registers->A.set(uint8_ResultTemp1);
+
     }
 
     //(2) If the most significant four bits of the accumulator
@@ -1459,6 +1463,8 @@ void i8080::i8080_OpCodes::func_DAA() {
 
         // Checks the Carry of the increment
         bool_Result2 = flags->check_C(uint8_ResultTemp1, 0x60);
+
+        registers->A.set(uint8_ResultTemp2);
     }
 
     // Sets or resets the Auxiliary Carry Flag
@@ -1467,6 +1473,9 @@ void i8080::i8080_OpCodes::func_DAA() {
     if (bool_Result2 == true) {
         flags->C.set(true);
     }
+
+    // Check Flags
+    flags->set_S_Z_P();
 
     clock->incClockCycles(4);
 
@@ -1714,7 +1723,7 @@ void i8080::i8080_OpCodes::func_DCR_M() {
 
     // Logic for: (HL) <- (HL)-1
     uint8_t uint8_InitialM = memory->get_M();
-    uint8_t uint8_ResultTemp = uint8_InitialM + 0x01;
+    uint8_t uint8_ResultTemp = uint8_InitialM - 0x01;
 
     memory->set_M(uint8_ResultTemp);
 
@@ -1722,8 +1731,8 @@ void i8080::i8080_OpCodes::func_DCR_M() {
     flags->set_S(uint8_ResultTemp);
     flags->set_Z(uint8_ResultTemp);
     // When checking the Auxiliary Carry Bit Source2 needs to be a 2's compliment
-    //flags->AC.set(func_Check_AuxCarry(uint8_RegisterTemp, 0xFF));
-    flags->AC.set(false);
+    flags->set_AC(uint8_InitialM, 0xFF); // .set(func_Check_AuxCarry(uint8_RegisterTemp, 0xFF));
+    //flags->AC.set(false);
 
     flags->set_P(uint8_ResultTemp);
 
@@ -4147,7 +4156,7 @@ void i8080::i8080_OpCodes::func_CMP_M() {
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, false);
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
 
     clock->incClockCycles(7);
 
@@ -4639,7 +4648,8 @@ void i8080::i8080_OpCodes::func_OUT_D8() {
     //if ((memory->opCode_Array[1] == 0x02) && (registers->A.get() != 0x00)) {
         //printf("Setting Offset\n");
     //}
-    io->output.set(memory->opCode_Array[1], registers->A.get());
+    io->output.get_port(memory->opCode_Array[1])->port_val.byte_val = registers->A.get();
+    //io->output.set(memory->opCode_Array[1], registers->A.get());
     //system("pause");
 
     clock->incClockCycles(10);
@@ -4827,9 +4837,10 @@ void i8080::i8080_OpCodes::func_IN_D8() {
     registers->inc_PC(1);
     // @TODO [Madison]: fill in logic
 
-    uint8_t uint8_RegisterTemp = io->input.get(memory->opCode_Array[1]);
+    //uint8_t uint8_RegisterTemp = io->input.get(memory->opCode_Array[1]);
 
-    registers->A.set(uint8_RegisterTemp);
+    registers->A.set(io->input.get_port(memory->opCode_Array[1])->port_val.byte_val);
+    //registers->A.set(uint8_RegisterTemp);
 
     clock->incClockCycles(10);
 
@@ -5294,8 +5305,8 @@ void i8080::i8080_OpCodes::func_XRI_D8() {
 	// S	Z	AC	P	CY
 	
 	flags->set_S_Z_P();
-	flags->AC.set(0);
-	flags->C.set(0);
+	flags->AC.set(false);
+	flags->C.set(false);
 
     clock->incClockCycles(7);
 
@@ -5550,7 +5561,7 @@ void i8080::i8080_OpCodes::func_ORI_D8() {
     // This differs from the documentation on other sites.
     // Set flags: Z, S, P, CY
     flags->set_S_Z_P();
-    flags->C.set(0);
+    flags->C.set(false);
 
 
     clock->incClockCycles(7);

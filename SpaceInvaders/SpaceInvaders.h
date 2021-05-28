@@ -16,20 +16,15 @@
  * [DESCRIPTION] Object that represents the possible inputs in
  *               space invaders
 */
-enum class SI_INPUT {
-    P1_MOVE_LEFT,
-    P1_MOVE_RIGHT,
-    P1_FIRE,
-    QUIT,
-    INSERT_COIN,
-    P2_MOVE_LEFT,
-    P2_MOVE_RIGHT,
-    P2_FIRE,
-    P1_START,
-    P2_START,
-    TILT,
-    NO_ACTION
-};
+//enum class SI_INPUT {
+//    MOVE_LEFT,
+//    MOVE_RIGHT, 
+//    FIRE, 
+//    INSERT_COIN, 
+//    START,
+//    TILT,
+//    QUIT
+//};
 
 /**
  * [DESCRIPTION] Class representing the space invaders game
@@ -37,7 +32,41 @@ enum class SI_INPUT {
 */
 class SpaceInvaders {
     private:
-        const int       EM_WIDTH  = 244;    // space invaders pixel width
+
+        // GAME ACTIONS =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        class Si_Action {
+        private:
+            i8080::i8080_IO::IO::Port *port; // port that the action is mapped to
+            unsigned char bit;               // bit that the action is mapped to
+        public:
+            void start();                    // stop the action
+            void stop();                     // start the action
+            Si_Action(i8080::i8080_IO::IO::Port* p_port, unsigned char p_bit);
+        };
+        Si_Action*      act_left_p1;
+        Si_Action*      act_right_p1;
+        Si_Action*      act_fire_p1;
+        Si_Action*      act_start_p1;
+
+        Si_Action*      act_left_p2;
+        Si_Action*      act_right_p2;
+        Si_Action*      act_fire_p2;
+        Si_Action*      act_start_p2;
+
+        Si_Action*      act_tilt;
+        Si_Action*      act_coin;
+
+        Mix_Chunk* wav_ShotSoundEffect;
+        Mix_Chunk* wav_ExplosionSoundEffect;
+        Mix_Chunk* wav_FastInvader1SoundEffect;
+        Mix_Chunk* wav_FastInvader2SoundEffect;
+        Mix_Chunk* wav_FastInvader3SoundEffect;
+        Mix_Chunk* wav_FastInvader4SoundEffect;
+        Mix_Chunk* wav_InvaderKilledSoundEffect;
+        Mix_Chunk* wav_UFOHighPitchSoundEffect;
+        Mix_Chunk* wav_UFOLowPitchSoundEffect;
+
+        const int       EM_WIDTH  = 224;    // space invaders pixel width
         const int       EM_HEIGHT = 256;    // space invaders pixel height
         const SDL_Rect  fillRect = { 165,181,
                         EM_WIDTH,EM_HEIGHT };// defines the area for the emulator on top of the bezel
@@ -47,13 +76,12 @@ class SpaceInvaders {
         i8080           *cpu;               // cpu to run the game on
         unsigned int    *video_RAM;          // VRAM from space invaders
         i8080::i8080_Registers::Register_16Bit shift_register;   // special i8080 hardware 
-        SI_INPUT        getInput(SDL_Event &evnt);               // get the input from the user
         void            handleUserInput(bool& quit_flag); // handle the input from the user
         void            loadRomFiles();     // load the rom files for the game
+        void            mapActions();       // map the actions to the cpu ports
         void            loadScreenUpdate(); // load an update to the screen
         void            mainLoop();         // main game loop
         void            prepareVRAM();      // prepare the VRAM for the space invaders screen
-        void            resetInputs();      // reset inputs specific to space invaders
         void            performShift();     // special i8080 hardware
         void            updateSound();      // function to play the sound effects
     public:

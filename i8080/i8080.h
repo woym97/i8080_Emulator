@@ -180,16 +180,40 @@ public:
     class i8080_IO {
     public:
         /**
-         * [DESCRIPTION] Class representing general IO with a buffer
+         * [DESCRIPTION] Class representing general IO with a port_list
          * 
         */
         class IO {
-        private:
-            std::array<uint8_t, 256> buffer;
         public:
-            void    set(int index, uint8_t val);
-            uint8_t get(int index);
+            // Structure to represent a Port at a bit level
+            class Port {
+            public:
+                typedef union {
+                    uint8_t byte_val;
+                    struct bit_struct
+                    {
+                        unsigned b0 : 1;
+                        unsigned b1 : 1;
+                        unsigned b2 : 1;
+                        unsigned b3 : 1;
+                        unsigned b4 : 1;
+                        unsigned b5 : 1;
+                        unsigned b6 : 1;
+                        unsigned b7 : 1;
+                    } bit_struct;
+                } byte_struct;
+                
+                byte_struct port_val;
+                void        set_bit(char bit);
+                void        unset_bit(char bit);
+                void        mod_bit(char bit, bool val);
+                Port();
+            };
+
+            Port    *get_port(unsigned char port_num);
             IO();
+        private:
+            std::array<Port, 256> port_list;
         };
 
         IO input;
