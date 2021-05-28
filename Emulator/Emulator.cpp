@@ -87,13 +87,23 @@ bool Emulator::initSDL()
  * [DESCRIPTION] Wait on the i8080 menu screen until the user makes a selection
  * 
 */
-void Emulator::waitForMenuEvent()
+void Emulator::displayMainMenu()
 {
 	// flag to signal program exit
 	bool quit_flag = false;
 
 	// event to handle 
 	SDL_Event evnt;
+
+	// show the loading screen
+	SDL_Surface* imageLoader = SDL_LoadBMP("Emulator/bmp_files/loading_screen.bmp");
+	SDL_Texture* loading_screen = SDL_CreateTextureFromSurface(gwRenderer, imageLoader);
+	SDL_RenderCopy(gwRenderer, loading_screen, NULL, NULL);
+	SDL_RenderPresent(gwRenderer);
+	SDL_Delay(5000);
+	SDL_FreeSurface(imageLoader);
+	SDL_DestroyTexture(loading_screen);
+
 
 	while (!quit_flag) {
 		// look at the event queue and handle events on it until
@@ -148,11 +158,11 @@ void Emulator::menuAnimation(bool destroy_flag)
 
 	// check if the images need to be loaded and if so load them
 	if (gwMenu_1 == NULL) {
-		SDL_Surface* imageLoader = SDL_LoadBMP("bmp_files/menu_1.bmp");
+		SDL_Surface* imageLoader = SDL_LoadBMP("Emulator/bmp_files/menu_1.bmp");
 		gwMenu_1 = SDL_CreateTextureFromSurface(gwRenderer, imageLoader);
-		imageLoader = SDL_LoadBMP("bmp_files/menu_2.bmp");
+		imageLoader = SDL_LoadBMP("Emulator/bmp_files/menu_2.bmp");
 		gwMenu_2 = SDL_CreateTextureFromSurface(gwRenderer, imageLoader);
-		imageLoader = SDL_LoadBMP("bmp_files/menu_3.bmp");
+		imageLoader = SDL_LoadBMP("Emulator/bmp_files/menu_3.bmp");
 		gwMenu_3 = SDL_CreateTextureFromSurface(gwRenderer, imageLoader);
 		SDL_FreeSurface(imageLoader);
 	}
@@ -222,7 +232,7 @@ void Emulator::closeGameWindow()
 Emulator::Emulator()
 {
 	initSDL();
-	waitForMenuEvent();
+	displayMainMenu();
 };
 
 /**

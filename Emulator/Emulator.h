@@ -31,7 +31,7 @@ class Emulator {
 
         /* =-=-=-= PRIVATE FUNCTIONS =-=-=-= */
         bool initSDL();					            // initializes the game window
-        void waitForMenuEvent();				    // wait for the user to make a selection 
+        void displayMainMenu();				    // wait for the user to make a selection 
         void menuAnimation(bool destroy_flag);	    // handle the main menu animation
         void closeGameWindow();					    // shut down procedure for the game
     public:

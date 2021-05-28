@@ -73,6 +73,7 @@ private:
     void            prepareVRAM();      // prepare the VRAM for the space invaders screen
     void            performShift();     // special i8080 hardware
     void            updateSound();      // function to play the sound effects
+    void            displayInstructions();
 public:
     void            runGame();          // run the game
     SpaceInvaders(SDL_Renderer* renderer, SDL_Joystick* gameController_1, SDL_Joystick* gameController_2);   // constructor

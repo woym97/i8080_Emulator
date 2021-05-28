@@ -625,11 +625,56 @@ void SpaceInvaders::updateSound()
 }
 
 /**
+ * [DESCRIPTION] Display the instructions to the user
+ *
+*/
+void SpaceInvaders::displayInstructions()
+{
+	SDL_Surface* imageLoader;
+	SDL_Texture* instructions;
+	bool exit_instructions = false;
+	SDL_Event evnt;
+
+	// load the correct instruction set
+	if (gc_1 == NULL) {
+		imageLoader = SDL_LoadBMP("SpaceInvaders/space_invaders_keyboard.bmp");
+	}
+	else {
+		imageLoader = SDL_LoadBMP("SpaceInvaders/space_invaders_controller.bmp");
+	}
+
+	instructions = SDL_CreateTextureFromSurface(gwRenderer, imageLoader);
+	SDL_RenderCopy(gwRenderer, instructions, NULL, NULL);
+	SDL_RenderPresent(gwRenderer);
+
+	// display the instructions on the screen until space OR a button 
+	while (!exit_instructions) {
+		while (SDL_PollEvent(&evnt) != 0) {
+			if (evnt.type == SDL_KEYDOWN) {
+				if (evnt.key.keysym.sym == SDLK_SPACE) {
+					exit_instructions = true;
+				}
+			}
+			else if (evnt.type == SDL_JOYBUTTONDOWN) {
+				if (evnt.jbutton.button == 0) {
+					exit_instructions = true;
+				}
+			}
+		}
+	}
+
+	SDL_FreeSurface(imageLoader);
+	SDL_DestroyTexture(instructions);
+}
+
+/**
  * [DESCRIPTION] Outside caller to initiate the game
  * 
 */
 void SpaceInvaders::runGame()
 {
+	displayInstructions();
+
 	/* Create space invader specific SDL structures */
 	SDL_Surface* siBezel = SDL_LoadBMP("SpaceInvaders/space_invaders_bezel.bmp");
 	if (siBezel == NULL) {
@@ -650,7 +695,6 @@ void SpaceInvaders::runGame()
 
 	// load the rom files for the game
 	loadRomFiles();
-
 
 	// to setup the sound
 	wav_ShotSoundEffect				= Mix_LoadWAV("SpaceInvaders/sound/shoot.wav");
