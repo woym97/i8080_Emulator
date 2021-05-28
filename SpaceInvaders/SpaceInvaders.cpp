@@ -35,22 +35,38 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 				event_handled = true;
 				break;
 			case SDLK_s:
-				act_start->start();
+				act_start_p1->start();
 				event_handled = true;
 				break;
 			case SDLK_LEFT:
 			case SDLK_a:
-				act_left->start();
+				act_left_p1->start();
 				event_handled = true;
 				break;
 			case SDLK_RIGHT:
 			case SDLK_d:
-				act_right->start();
+				act_right_p1->start();
 				event_handled = true;
 				break;
 			case SDLK_SPACE:
 			case SDLK_w:
-				act_fire->start();
+				act_fire_p1->start();
+				event_handled = true;
+				break;
+			case SDLK_k:
+				act_start_p2->start();
+				event_handled = true;
+				break;
+			case SDLK_j:
+				act_left_p2->start();
+				event_handled = true;
+				break;
+			case SDLK_l:
+				act_right_p2->start();
+				event_handled = true;
+				break;
+			case SDLK_i:
+				act_fire_p2->start();
 				event_handled = true;
 				break;
 			case SDLK_c:
@@ -71,22 +87,38 @@ void SpaceInvaders::handleUserInput(bool& quit_flag)
 				event_handled = true;
 				break;
 			case SDLK_s:
-				act_start->stop();
+				act_start_p1->stop();
 				event_handled = true;
 				break;
 			case SDLK_LEFT:
 			case SDLK_a:
-				act_left->stop();
+				act_left_p1->stop();
 				event_handled = true;
 				break;
 			case SDLK_RIGHT:
 			case SDLK_d:
-				act_right->stop();
+				act_right_p1->stop();
 				event_handled = true;
 				break;
 			case SDLK_SPACE:
 			case SDLK_w:
-				act_fire->stop();
+				act_fire_p1->stop();
+				event_handled = true;
+				break;
+			case SDLK_k:
+				act_start_p2->stop();
+				event_handled = true;
+				break;
+			case SDLK_j:
+				act_left_p2->stop();
+				event_handled = true;
+				break;
+			case SDLK_l:
+				act_right_p2->stop();
+				event_handled = true;
+				break;
+			case SDLK_i:
+				act_fire_p2->stop();
 				event_handled = true;
 				break;
 			case SDLK_c:
@@ -545,12 +577,21 @@ SpaceInvaders::~SpaceInvaders()
 */
 void SpaceInvaders::mapActions()
 {
-	act_fire	= new Si_Action(cpu->io->input.get_port(1), 4);
-	act_left	= new Si_Action(cpu->io->input.get_port(1), 5);
-	act_right	= new Si_Action(cpu->io->input.get_port(1), 6);
-	act_start	= new Si_Action(cpu->io->input.get_port(1), 2);
-	act_tilt	= new Si_Action(cpu->io->input.get_port(2), 2);
-	act_coin	= new Si_Action(cpu->io->input.get_port(1), 0);
+	// Player 1 Commands
+	act_fire_p1		= new Si_Action(cpu->io->input.get_port(1), 4);
+	act_left_p1		= new Si_Action(cpu->io->input.get_port(1), 5);
+	act_right_p1	= new Si_Action(cpu->io->input.get_port(1), 6);
+	act_start_p1	= new Si_Action(cpu->io->input.get_port(1), 2);
+
+	// Player 2 Commands
+	act_fire_p2 = new Si_Action(cpu->io->input.get_port(2), 4);
+	act_left_p2 = new Si_Action(cpu->io->input.get_port(2), 5);
+	act_right_p2 = new Si_Action(cpu->io->input.get_port(2), 6);
+	act_start_p2 = new Si_Action(cpu->io->input.get_port(1), 1);
+
+	// General Commands
+	act_tilt		= new Si_Action(cpu->io->input.get_port(2), 2);
+	act_coin		= new Si_Action(cpu->io->input.get_port(1), 0);
 }
 
 /**

@@ -4156,7 +4156,7 @@ void i8080::i8080_OpCodes::func_CMP_M() {
 	
 	// When checking the Carry Bit Source2 needs to be a 2's compliment
 	// the result has to be negated also before setting/resetting the flag.
-	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, false);
+	flags->set_C(uint8_InitialA, uint8_RegisterTwosCompliment, true);
 
     clock->incClockCycles(7);
 

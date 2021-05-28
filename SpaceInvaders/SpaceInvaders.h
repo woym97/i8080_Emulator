@@ -43,10 +43,16 @@ class SpaceInvaders {
             void stop();                     // start the action
             Si_Action(i8080::i8080_IO::IO::Port* p_port, unsigned char p_bit);
         };
-        Si_Action*      act_left;
-        Si_Action*      act_right;
-        Si_Action*      act_fire;
-        Si_Action*      act_start;
+        Si_Action*      act_left_p1;
+        Si_Action*      act_right_p1;
+        Si_Action*      act_fire_p1;
+        Si_Action*      act_start_p1;
+
+        Si_Action*      act_left_p2;
+        Si_Action*      act_right_p2;
+        Si_Action*      act_fire_p2;
+        Si_Action*      act_start_p2;
+
         Si_Action*      act_tilt;
         Si_Action*      act_coin;
 
