@@ -31,12 +31,13 @@ class Emulator {
 
         /* =-=-=-= PRIVATE FUNCTIONS =-=-=-= */
         bool initSDL();					            // initializes the game window
-        void waitForMenuEvent();				    // wait for the user to make a selection 
+        void displayMainMenu();				    // wait for the user to make a selection 
         void menuAnimation(bool destroy_flag);	    // handle the main menu animation
         void closeGameWindow();					    // shut down procedure for the game
     public:
         /* =-=-=-= SDL MEMBERS =-=-=-= */
-        SDL_Joystick*   gameController = NULL;      // variable to hold handle to joystick
+        SDL_Joystick*   gameController_1 = NULL;    // variable to hold handle to joystick1
+        SDL_Joystick*   gameController_2 = NULL;    // variable to hold handle to joystick2
         SDL_Window*     gameWindow = NULL;			// main window for game
         SDL_Renderer*   gwRenderer = NULL;		    // main renderer
 

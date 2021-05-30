@@ -1,4 +1,9 @@
-﻿  SpaceInvaders.cpp
+﻿  Emulator.cpp
 C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\Emulator\Emulator.h(14,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\SpaceInvaders\SpaceInvaders.cpp(165,52): warning C4244: '=': conversion from 'uint64_t' to 'int', possible loss of data
+  SpaceInvaders.cpp
+C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\Emulator\Emulator.h(14,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\SpaceInvaders\SpaceInvaders.cpp(335,52): warning C4244: '=': conversion from 'uint64_t' to 'int', possible loss of data
+  main.cpp
+C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\Emulator\Emulator.h(14,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  Generating Code...
   Emulator_8080.vcxproj -> C:\Users\Maddy\Documents\School\CS_467\i8080_Emulator\x64\Debug\Emulator_8080.exe
